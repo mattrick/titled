@@ -1,0 +1,3 @@
+[submodule "sqlite3x"]
+	path = sqlite3x
+	url = git://github.com/mattrick/sqlite3x.git
