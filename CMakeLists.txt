@@ -17,5 +17,8 @@ find_package ( SQLite3x )
 include_directories(${SQLite3x_INCLUDE_DIRS})
 link_directories(${SQLite3x_LIB_DIR})
 
+find_package ( Qt4 REQUIRED COMPONENTS QtCore QtGui )
+include(${QT_USE_FILE})
+
 add_subdirectory(sqlite3x)
 add_subdirectory(src)
