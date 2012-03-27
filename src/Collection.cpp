@@ -38,7 +38,8 @@ std::string GetHash(Path path)
 	return DigestEngine::digestToHex(md5.digest());
 }
 
-Collection::Collection()
+Collection::Collection(std::string path)
+	: m_Path(path)
 {
 	m_DB = new SQLite3x::DB("movies.db");
 }
@@ -86,11 +87,9 @@ void Collection::Build()
 {
 	m_DB->Exec("CREATE TABLE IF NOT EXISTS %s (%s INTEGER PRIMARY KEY, %s TEXT, %s TEXT, %s VARCHAR(32));", "movies", "id", "name", "path", "hash");
 
-	std::string dir = std::string(Path::current());
-
 	Clean();
 
-	Scan(dir, true);
+	Scan(m_Path, true);
 }
 
 void Collection::Scan(std::string path, bool recursive = true)
@@ -100,7 +99,7 @@ void Collection::Scan(std::string path, bool recursive = true)
 
 	while (it != end)
 	{
-		sregex extension_check = sregex::compile("(mp4|avi|rmvb|rm|256)");
+		sregex extension_check = sregex::compile("(mp4|avi|rmvb|rm|256|mkv)");
 		if (it->isFile() && regex_match(it.path().getExtension(), extension_check))
 		{
 			bool found = false;
@@ -131,9 +130,9 @@ void Collection::Scan(std::string path, bool recursive = true)
 	}
 }
 
-std::vector<CollectionEntry> Collection::GetList()
+std::list<CollectionEntry> Collection::GetList()
 {
-	std::vector<CollectionEntry> collection;
+	std::list<CollectionEntry> collection;
 
 	try
 	{

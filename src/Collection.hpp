@@ -1,7 +1,9 @@
 #pragma once
 
 #include <string>
-#include <vector>
+#include <list>
+
+#include <Poco/Path.h>
 
 #include <sqlite3x/SQLite3x.hpp>
 
@@ -23,9 +25,10 @@ class Collection
 
 	protected:
 		SQLite3x::DB *m_DB;
+		std::string m_Path;
 
 	public:
-		Collection();
+		Collection(std::string path = Poco::Path::current());
 		~Collection();
 
 		void Rebuild();
@@ -34,5 +37,5 @@ class Collection
 		void Clean();
 		void Scan(std::string path, bool recursive);
 
-		std::vector<CollectionEntry> GetList();
+		std::list<CollectionEntry> GetList();
 };

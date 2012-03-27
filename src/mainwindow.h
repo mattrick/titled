@@ -13,12 +13,15 @@
 
  protected:
      void closeEvent(QCloseEvent *event);
-     void setupUi();
+     void setup();
+     void setupCollection();
 
  private slots:
 
  private:
  	 QListView *listView;
+
+
  	 QWidget *centralWidget;
 
  };
