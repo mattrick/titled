@@ -6,10 +6,15 @@ set(EXECUTABLE_OUTPUT_PATH ${filmweb_SOURCE_DIR}/bin)
 
 SET(filmweb_SOURCES
 	main.cpp
+	Collection.cpp
+	CollectionModel.cpp
+	CollectionItem.cpp
 	mainwindow.cpp)
 
 SET(filmweb_QT_HEADERS
-	mainwindow.h)
+	mainwindow.h
+	CollectionModel.hpp
+	CollectionItem.hpp)
 
 qt4_wrap_cpp(filmweb_QT_HEADERS_MOC
 	${filmweb_QT_HEADERS})

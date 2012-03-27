@@ -1,11 +1,21 @@
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include <sqlite3x/SQLite3x.hpp>
 
 namespace SQLite3x
 {
 	class DB;
 }
+
+struct CollectionEntry
+{
+	std::string name;
+	std::string path;
+	std::string hash;
+};
 
 class Collection
 {
@@ -23,4 +33,6 @@ class Collection
 
 		void Clean();
 		void Scan(std::string path, bool recursive);
+
+		std::vector<CollectionEntry> GetList();
 };

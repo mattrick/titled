@@ -107,15 +107,14 @@ void Collection::Scan(std::string path, bool recursive = true)
 
 			try
 			{
-			m_DB->Query("SELECT * FROM movies WHERE hash=?;")->Bind(GetHash(it.path()).c_str())->Execute([&found](int id){
-				found = true;
-			});
+				m_DB->Query("SELECT * FROM movies WHERE hash=?;")->Bind(GetHash(it.path()).c_str())->Execute([&found](int id){
+					found = true;
+				});
 
-			if (!found)
-			{
-				m_DB->Query("INSERT INTO movies VALUES (null, ?, ?, ?);")->Bind(it.path().getBaseName(), it.path().toString(), GetHash(it.path()))->Execute();
-			}
-
+				if (!found)
+				{
+					m_DB->Query("INSERT INTO movies VALUES (null, ?, ?, ?);")->Bind(it.path().getBaseName(), it.path().toString(), GetHash(it.path()))->Execute();
+				}
 			}
 			catch(const char* err)
 			{
@@ -130,4 +129,29 @@ void Collection::Scan(std::string path, bool recursive = true)
 
 		++it;
 	}
+}
+
+std::vector<CollectionEntry> Collection::GetList()
+{
+	std::vector<CollectionEntry> collection;
+
+	try
+	{
+		m_DB->Query("SELECT * FROM movies;")->Execute([&collection](int id, std::string name, std::string path, std::string hash){
+			CollectionEntry entry;
+
+			entry.name = name;
+			entry.path = path;
+			entry.hash = hash;
+
+			collection.push_back(entry);
+		});
+
+	}
+	catch(const char* err)
+	{
+		std::cerr << err;
+	}
+
+	return collection;
 }

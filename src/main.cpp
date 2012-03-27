@@ -1,4 +1,5 @@
 #include "Collection.hpp"
+#include "CollectionModel.hpp"
 
 #include <QApplication>
 
@@ -10,8 +11,6 @@ int main(int argc, char *argv[])
 	c.Rebuild();
 
     QApplication app(argc, argv);
-    app.setOrganizationName("Trolltech");
-    app.setApplicationName("Application Example");
     MainWindow mainWin;
 
     mainWin.show();
