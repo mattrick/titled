@@ -9,12 +9,16 @@ SET(filmweb_SOURCES
 	Collection.cpp
 	CollectionModel.cpp
 	CollectionItem.cpp
-	mainwindow.cpp)
+	mainwindow.cpp
+	Filter.cpp
+	FilterGroup.cpp)
 
 SET(filmweb_QT_HEADERS
 	mainwindow.h
 	CollectionModel.hpp
-	CollectionItem.hpp)
+	CollectionItem.hpp
+	Filter.hpp
+	FilterGroup.hpp)
 
 qt4_wrap_cpp(filmweb_QT_HEADERS_MOC
 	${filmweb_QT_HEADERS})

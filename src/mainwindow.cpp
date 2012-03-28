@@ -9,6 +9,7 @@
 #include <QWebElement>
 #include <QWebElementCollection>
 #include <QNetworkCookie>
+#include <QLabel>
 
 #include "mainwindow.h"
 #include "Collection.hpp"
@@ -24,6 +25,8 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
 }
 
+#include "FilterGroup.hpp"
+
 void MainWindow::setup()
 {
 	this->resize(1024, 768);
@@ -33,9 +36,16 @@ void MainWindow::setup()
 
 	this->setCentralWidget(centralWidget);
 
+	QStringList tokens = QString("fsa fsa fxzf qw rq").split(" ");
+
+	group = new FilterGroup(0, 600, this);
+
+	connect(this, SIGNAL(refresh_group(QStringList)), group, SLOT(make(QStringList)));
+
 	setupCollection();
 	setupBrowser();
 	//setupFilters();
+
 }
 
 void MainWindow::setupCollection()
@@ -82,10 +92,13 @@ void MainWindow::setupBrowser()
 	m_Browser->setUrl(QUrl("about:blank"));
 }
 
+
+
 void MainWindow::zmiana_filmu(const QModelIndex & current, const QModelIndex & previous)
 {
 	 if (current.isValid())
 	 {
+		 listView->setEnabled(false);
 		 QString name = model->data(current, CollectionItem::NameRole).toString();
 
 		 QStringList tokens = name.split(QRegExp("[^\\w']"), QString::SkipEmptyParts);
@@ -93,10 +106,11 @@ void MainWindow::zmiana_filmu(const QModelIndex & current, const QModelIndex & p
 		  * process with filtering
 		  */
 
-		 //QUrl query ("http://www.filmweb.pl/search?q=" + tokens.join("+"));
-		 QUrl query ("http://www.filmweb.pl/search?q=Quantum+Apocalypse");
+		 emit refresh_group(tokens);
 
-		 QWebPage* page = new QWebPage(this);
+		 QUrl query ("http://www.filmweb.pl/search?q=" + tokens.join("+"));
+
+		 page = new QWebPage(this);
 
 		     QList<QNetworkCookie> cookies;
 		     QNetworkCookie cookie(QByteArray("welcomeScreen"),QByteArray("welcome_screen"));
@@ -106,45 +120,49 @@ void MainWindow::zmiana_filmu(const QModelIndex & current, const QModelIndex & p
 		 QWebFrame* frame = page->mainFrame();
 		 frame->setUrl(query);
 
-		 QEventLoop loop;
-		 connect(frame, SIGNAL(loadFinished(bool)), &loop, SLOT(quit()));
-		 loop.exec();
-
-		 class result
-		 {
-		 public:
-			 QString title;
-			 QString original;
-			 QUrl url;
-			 QString year;
-		 };
-
-		 QList<result> results;
-
-		 QWebElement document = frame->documentElement();
-		 QWebElementCollection links = document.findAll("li.searchResult");
-		 foreach (QWebElement e, links) {
-			if (e.findFirst("span.searchResultTypeAlias").toPlainText() == "film" || e.findFirst("span.searchResultTypeAlias").toPlainText() == "TV")
-			{
-				QString plainName = e.findFirst("a.searchResultTitle").toPlainText();
-
-			 QStringList name = plainName.split(QRegExp(" / "), QString::SkipEmptyParts);
-			 result r;
-			 r.title = name[0];
-			 if (name.size() > 1)
-				 r.original = name[1];
-
-			 QString plainDetails = e.findFirst("div.searchResultDetails").toPlainText();
-			 QStringList details = plainDetails.split(QRegExp(" | "), QString::SkipEmptyParts);
-
-			 r.year = details[0];
-
-			 r.url = e.findFirst("a.searchResultTitle").attribute("href");
-			 qDebug() << r.title << " (" << r.original << ") (" << r.year << ") " << r.url;
-			}
-		 }
+		 connect(frame, SIGNAL(loadFinished(bool)), this, SLOT(koniec_ladowania()));
 
 
 	 }
 
+}
+
+void MainWindow::koniec_ladowania()
+{
+	listView->setEnabled(true);
+
+	class result
+	 {
+	 public:
+		 QString title;
+		 QString original;
+		 QUrl url;
+		 QString year;
+	 };
+
+	 QList<result> results;
+
+	 QWebElement document = page->mainFrame()->documentElement();
+	 QWebElementCollection links = document.findAll("li.searchResult");
+	 foreach (QWebElement e, links) {
+		if (e.findFirst("span.searchResultTypeAlias").toPlainText() == "film" || e.findFirst("span.searchResultTypeAlias").toPlainText() == "TV")
+		{
+			QString plainName = e.findFirst("a.searchResultTitle").toPlainText();
+
+		 QStringList name = plainName.split(QRegExp(" / "), QString::SkipEmptyParts);
+		 result r;
+		 r.title = name[0];
+		 if (name.size() > 1)
+			 r.original = name[1];
+
+		 QString plainDetails = e.findFirst("div.searchResultDetails").toPlainText();
+		 QStringList details = plainDetails.split(QRegExp(" | "), QString::SkipEmptyParts);
+
+		 r.year = details[0];
+
+		 r.url = e.findFirst("a.searchResultTitle").attribute("href");
+		 qDebug() << r.title << " (" << r.original << ") (" << r.year << ") " << r.url;
+		 results.append(r);
+		}
+	 }
 }
