@@ -6,6 +6,7 @@
 #include <QtGui/QScrollArea>
 #include <QtWebKit/QWebView>
 #include <QStringList>
+#include <QStringListModel>
 
 class QListViewItem;
 class CollectionModel;
@@ -31,6 +32,7 @@ class FilterGroup;
 
 public slots:
 	void change_query(QString newquery);
+	void result_changed_item(const QModelIndex & current, const QModelIndex & previous);
 
 signals:
 	void refresh_group(QStringList list);
@@ -40,6 +42,9 @@ signals:
 
  	CollectionModel *model;
  	 QListView *listView;
+
+ 	 QListView *resultsList;
+ 	 QStringListModel* resultsModel;
 
  	FilterGroup* group;
 
