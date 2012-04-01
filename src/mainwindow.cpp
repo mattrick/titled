@@ -93,6 +93,15 @@ void MainWindow::setupCollection()
 	connect(listView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(item_changed(const QModelIndex &, const QModelIndex &)));
 	connect(resultsList->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(result_changed_item(const QModelIndex &, const QModelIndex &)));
 	connect(frame, SIGNAL(loadFinished(bool)), this, SLOT(loading_finished()));
+
+	previev = new QLineEdit(centralWidget);
+	        previev->setObjectName(QString::fromUtf8("previev"));
+	        previev->setGeometry(QRect(0, 650, 600, 20));
+
+	    save = new QPushButton(centralWidget);
+	        save->setObjectName(QString::fromUtf8("save"));
+	        save->setGeometry(QRect(660, 650, 83, 24));
+	       save->setText("Apply");
 }
 
 void MainWindow::setupFilters()
@@ -198,5 +207,10 @@ void MainWindow::loading_finished()
 
 void MainWindow::result_changed_item(const QModelIndex & current, const QModelIndex & previous)
 {
-	this->m_Browser->load(results.at(current.row()).url);
+	result r = results.at(current.row());
+	this->m_Browser->load(r.url);
+
+	QString newname = r.title + " (" + r.year + ")";
+
+	this->previev->setText(newname);
 }

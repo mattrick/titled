@@ -7,6 +7,7 @@
 #include <QtWebKit/QWebView>
 #include <QStringList>
 #include <QStringListModel>
+#include <QPushButton>
 
 class QListViewItem;
 class CollectionModel;
@@ -45,6 +46,9 @@ signals:
 
  	 QListView *resultsList;
  	 QStringListModel* resultsModel;
+
+ 	QLineEdit *previev;
+ 	QPushButton *save;
 
  	FilterGroup* group;
 
