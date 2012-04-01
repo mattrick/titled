@@ -1,22 +1,22 @@
 #pragma once
 
- #include <QAbstractListModel>
- #include <QList>
+#include <QAbstractListModel>
+#include <QList>
+#include <QStringList>
 
 class Collection;
 class CollectionItem;
 
- class CollectionModel : public QAbstractListModel
- {
-     Q_OBJECT
+class CollectionModel : public QAbstractListModel
+{
+	Q_OBJECT
 
- public:
-		explicit CollectionModel(CollectionItem* prototype, QObject *parent);
-		~CollectionModel();
+	private:
+		QList<CollectionItem*> m_List;
 
-		int rowCount(const QModelIndex &parent = QModelIndex()) const;
-		QVariant data(const QModelIndex &index, int role) const;
+		Collection *m_Collection;
 
+	/* QAbstractListModel */
 		void appendRow(CollectionItem *item);
 		void appendRows(const QList<CollectionItem *> &items);
 		void insertRow(int row, CollectionItem *item);
@@ -32,7 +32,18 @@ class CollectionItem;
 		bool removeRows(int row, int count, const QModelIndex &parent);
 		CollectionItem* takeRow(int row);
 
- private:
-     QList<CollectionItem*> m_Collection;
- };
+		void UpdateList();
+
+	protected:
+
+	public:
+		explicit CollectionModel(CollectionItem* prototype, QObject *parent);
+		~CollectionModel();
+
+		int rowCount(const QModelIndex &parent = QModelIndex()) const;
+		QVariant data(const QModelIndex &index, int role) const;
+
+	public slots:
+		void Build();
+};
 

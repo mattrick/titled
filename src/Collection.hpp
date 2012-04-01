@@ -1,23 +1,11 @@
 #pragma once
 
-#include <string>
-#include <list>
+#include <functional>
 
-#include <Poco/Path.h>
+#include <QStringList>
+#include <QString>
 
 #include <sqlite3x/SQLite3x.hpp>
-
-namespace SQLite3x
-{
-	class DB;
-}
-
-struct CollectionEntry
-{
-	std::string name;
-	std::string path;
-	std::string hash;
-};
 
 class Collection
 {
@@ -25,17 +13,15 @@ class Collection
 
 	protected:
 		SQLite3x::DB *m_DB;
-		std::string m_Path;
+		QStringList m_Paths;
+
+		void Check();
+		void Scan();
 
 	public:
-		Collection(std::string path = Poco::Path::current());
+		Collection();
 		~Collection();
 
-		void Rebuild();
-		void Build();
-
-		void Clean();
-		void Scan(std::string path, bool recursive);
-
-		std::list<CollectionEntry> GetList();
+		void Update();
+		void List(std::function<void (QString, QString, QString)> func);
 };

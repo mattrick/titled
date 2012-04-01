@@ -35,7 +35,6 @@ class FilterGroup;
 
 public slots:
 	void change_query(QString newquery);
-	void repopulateModel();
 
 
 signals:

@@ -1,47 +1,25 @@
-#include <iostream>
-#include <iterator>
-#include <fstream>
-#include <algorithm>
-
-#include <Poco/DirectoryIterator.h>
-#include <Poco/FileStream.h>
-#include <Poco/MD5Engine.h>
-#include <Poco/DigestStream.h>
-#include <Poco/StreamCopier.h>
-
-#include <boost/xpressive/xpressive.hpp>
-
-using Poco::DirectoryIterator;
-using Poco::Path;
-using Poco::FileInputStream;
-
-using Poco::DigestEngine;
-using Poco::MD5Engine;
-using Poco::DigestOutputStream;
-using Poco::StreamCopier;
-using Poco::File;
-
-using namespace boost::xpressive;
-
 #include "Collection.hpp"
 
-std::string GetHash(Path path)
+#include <QSettings>
+#include <QCryptographicHash>
+#include <QFile>
+#include <QDirIterator>
+
+#include <QDebug>
+
+#include <boost/xpressive/xpressive.hpp>
+using namespace boost::xpressive;
+
+
+Collection::Collection()
 {
-	MD5Engine md5;
+	QSettings settings;
 
-	FileInputStream fis(path.toString(), std::ios::binary);
-	DigestOutputStream ostr(md5);
+	settings.beginGroup("Collection");
+	//m_Paths = settings.value("path", QStringList()).toStringList();
+	m_Paths = settings.value("path", QStringList("collection")).toStringList();
 
-	StreamCopier::copyStream(fis, ostr);
-	ostr.close();
-
-	return DigestEngine::digestToHex(md5.digest());
-}
-
-Collection::Collection(std::string path)
-	: m_Path(path)
-{
-	m_DB = new SQLite3x::DB("movies.db");
+	m_DB = new SQLite3x::DB(settings.value("database", "sqlite.db").toString().toStdString());
 }
 
 Collection::~Collection()
@@ -49,23 +27,47 @@ Collection::~Collection()
 	delete m_DB;
 }
 
-void Collection::Clean()
+void Collection::Update()
 {
-	m_DB->Query("SELECT * FROM movies")->Execute([m_DB](int id, std::string name, std::string path, std::string hash){
-		Path p(path);
-		File f(p);
+	m_DB->Exec("CREATE TABLE IF NOT EXISTS %s (%s TEXT, %s TEXT, %s VARCHAR(32));", "movies", "name", "path", "hash");
 
-		if (!f.exists())
+	Check();
+
+	Scan();
+}
+
+QString GetHash(QString path)
+{
+	QCryptographicHash crypto(QCryptographicHash::Md5);
+
+	QFile file(path);
+	file.open(QFile::ReadOnly);
+
+	while (!file.atEnd())
+	{
+		crypto.addData(file.read(8192));
+	}
+
+	return QString(crypto.result().toHex());
+}
+
+void Collection::Check()
+{
+	List([m_DB](QString name, QString path, QString hash){
+		QFile file(path);
+		QFileInfo info(file);
+
+		if (!info.exists())
 		{
-			m_DB->Query("DELETE FROM movies where id=?")->Bind(id)->Execute();
+			m_DB->Query("DELETE FROM movies where hash=?")->Bind(hash.toStdString())->Execute();
 		}
 		else
 		{
-			if (GetHash(p) != hash)
+			if (GetHash(path) != hash)
 			{
 				try
 				{
-					m_DB->Query("UPDATE movies SET hash=? WHERE id=?")->Bind(GetHash(p), id)->Execute();
+					m_DB->Query("UPDATE movies SET hash=? WHERE hash=?")->Bind(GetHash(path).toUtf8().constData(), hash.toStdString())->Execute();
 				}
 				catch (const char* err)
 				{
@@ -76,81 +78,49 @@ void Collection::Clean()
 	});
 }
 
-void Collection::Rebuild()
+void Collection::Scan()
 {
-	//truncate isn't available in sqlite, so we force delete table
-	m_DB->Exec("DROP TABLE IF EXISTS movie");
-	Build();
-}
-
-void Collection::Build()
-{
-	m_DB->Exec("CREATE TABLE IF NOT EXISTS %s (%s INTEGER PRIMARY KEY, %s TEXT, %s TEXT, %s VARCHAR(32));", "movies", "id", "name", "path", "hash");
-
-	Clean();
-
-	Scan(m_Path, true);
-}
-
-void Collection::Scan(std::string path, bool recursive = true)
-{
-	DirectoryIterator it(path);
-	DirectoryIterator end;
-
-	while (it != end)
+	QSettings settings;
+	foreach (QString path, m_Paths)
 	{
-		sregex extension_check = sregex::compile("(mp4|avi|rmvb|rm|256|mkv)");
-		if (it->isFile() && regex_match(it.path().getExtension(), extension_check))
+		QDirIterator directory_walker(path, QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
+
+		while(directory_walker.hasNext())
 		{
-			bool found = false;
+			  // then we tell our directory_walker object to explicitly take next element until the loop finishes
+			  directory_walker.next();
 
-			try
-			{
-				m_DB->Query("SELECT * FROM movies WHERE hash=?;")->Bind(GetHash(it.path()).c_str())->Execute([&found](int id){
-					found = true;
-				});
+			  sregex extension_check = sregex::compile("(mp4|avi|rmvb|rm|256|mkv)");
+			 // I want to list just mp3 files!
+			 if(regex_match(directory_walker.fileInfo().completeSuffix().toStdString(), extension_check))
+			 {		 // then we take a filename and display it to a listWidget like the code below:
 
-				if (!found)
-				{
-					m_DB->Query("INSERT INTO movies VALUES (null, ?, ?, ?);")->Bind(it.path().getBaseName(), it.path().toString(), GetHash(it.path()))->Execute();
-				}
-			}
-			catch(const char* err)
-			{
-				std::cerr << err;
-			}
+				 QFileInfo info = directory_walker.fileInfo();
+
+				 try
+					{
+					 	 bool found = false;
+						m_DB->Query("SELECT * FROM movies WHERE hash=?;")->Bind(GetHash(info.absoluteFilePath()).toStdString())->Execute([&found](){
+							found = true;
+						});
+
+						if (!found)
+						{
+							m_DB->Query("INSERT INTO movies VALUES (?, ?, ?);")->Bind(info.baseName().toUtf8().constData(), info.absoluteFilePath().toUtf8().constData(), GetHash(info.absoluteFilePath()).toStdString())->Execute();
+						}
+					}
+					catch(const char* err)
+					{
+						std::cerr << err;
+					}
+			 }
 		}
-
-		if (it->isDirectory() && recursive)
-		{
-			Scan(it.path().toString(), true);
-		}
-
-		++it;
 	}
 }
 
-std::list<CollectionEntry> Collection::GetList()
+void Collection::List(std::function<void (QString, QString, QString)> func)
 {
-	std::list<CollectionEntry> collection;
-
-	try
-	{
-		m_DB->Query("SELECT * FROM movies;")->Execute([&collection](int id, std::string name, std::string path, std::string hash){
-			CollectionEntry entry;
-
-			entry.name = name;
-			entry.path = path;
-			entry.hash = hash;
-
-			collection.push_back(entry);
-		});
-
-	}
-	catch(const char* err)
-	{
-		std::cerr << err;
-	}
-
-	return collection;
+	m_DB->Query("SELECT * FROM movies ORDER BY name")->Execute([&func](std::string name, std::string path, std::string hash){
+		func(QString::fromUtf8(name.c_str()), QString::fromUtf8(path.c_str()), QString::fromUtf8(hash.c_str()));
+	});
 }

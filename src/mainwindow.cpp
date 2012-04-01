@@ -13,7 +13,6 @@
 #include <QFile>
 
 #include "mainwindow.h"
-#include "Collection.hpp"
 #include "CollectionModel.hpp"
 #include "CollectionItem.hpp"
 
@@ -67,7 +66,7 @@ void MainWindow::setupCollection()
 
 	model = new CollectionModel(new CollectionItem, this);
 
-	repopulateModel();
+	model->Build();
 
 	listView->setModel(model);
 	listView->setObjectName("listView");
@@ -98,21 +97,6 @@ void MainWindow::setupCollection()
 	       save->setText("Apply");
 
 	connect(save, SIGNAL(clicked(bool)), this, SLOT(rename()));
-}
-
-void MainWindow::repopulateModel()
-{
-	model->clear();
-
-	Collection collection("collection");
-	collection.Build();
-
-	auto lista = collection.GetList();
-
-	for_each(lista.begin(), lista.end(), [&model](CollectionEntry entry){
-			model->appendRow(new CollectionItem(entry.name.c_str(), entry.path.c_str(), entry.hash.c_str()));
-		});
-
 }
 
 void MainWindow::setupFilters()
@@ -237,5 +221,5 @@ void MainWindow::rename()
 
 	file.rename(newpath);
 
-	repopulateModel();
+	model->Build();
 }
