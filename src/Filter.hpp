@@ -8,6 +8,8 @@
 
 #include <QHBoxLayout>
 
+class WordDB;
+
  class Filter : public QWidget
  {
 	 Q_OBJECT
@@ -23,6 +25,8 @@
 	 };
 
  private:
+	 WordDB* db;
+
 	 QPushButton* m_add;
 	 QPushButton* m_remove;
 	 QPushButton* m_include;

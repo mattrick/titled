@@ -30,10 +30,13 @@ class FilterGroup;
  private slots:
  	 void item_changed(const QModelIndex & current, const QModelIndex & previous);
  	 void loading_finished();
+ 	void result_changed_item(const QModelIndex & current, const QModelIndex & previous);
+ 	void rename();
 
 public slots:
 	void change_query(QString newquery);
-	void result_changed_item(const QModelIndex & current, const QModelIndex & previous);
+	void repopulateModel();
+
 
 signals:
 	void refresh_group(QStringList list);
@@ -47,7 +50,7 @@ signals:
  	 QListView *resultsList;
  	 QStringListModel* resultsModel;
 
- 	QLineEdit *previev;
+ 	QLineEdit *preview;
  	QPushButton *save;
 
  	FilterGroup* group;

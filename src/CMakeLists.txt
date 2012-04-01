@@ -11,7 +11,8 @@ SET(filmweb_SOURCES
 	CollectionItem.cpp
 	mainwindow.cpp
 	Filter.cpp
-	FilterGroup.cpp)
+	FilterGroup.cpp
+	WordDB.cpp)
 
 SET(filmweb_QT_HEADERS
 	mainwindow.h

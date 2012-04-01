@@ -10,6 +10,7 @@
 #include <QWebElementCollection>
 #include <QNetworkCookie>
 #include <QLabel>
+#include <QFile>
 
 #include "mainwindow.h"
 #include "Collection.hpp"
@@ -66,14 +67,7 @@ void MainWindow::setupCollection()
 
 	model = new CollectionModel(new CollectionItem, this);
 
-	Collection collection("collection");
-	collection.Build();
-
-	auto lista = collection.GetList();
-
-	for_each(lista.begin(), lista.end(), [&model](CollectionEntry entry){
-			model->appendRow(new CollectionItem(entry.name.c_str(), entry.path.c_str(), entry.hash.c_str()));
-		});
+	repopulateModel();
 
 	listView->setModel(model);
 	listView->setObjectName("listView");
@@ -94,14 +88,31 @@ void MainWindow::setupCollection()
 	connect(resultsList->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(result_changed_item(const QModelIndex &, const QModelIndex &)));
 	connect(frame, SIGNAL(loadFinished(bool)), this, SLOT(loading_finished()));
 
-	previev = new QLineEdit(centralWidget);
-	        previev->setObjectName(QString::fromUtf8("previev"));
-	        previev->setGeometry(QRect(0, 650, 600, 20));
+	preview = new QLineEdit(centralWidget);
+	        preview->setObjectName(QString::fromUtf8("preview"));
+	        preview->setGeometry(QRect(0, 650, 600, 20));
 
 	    save = new QPushButton(centralWidget);
 	        save->setObjectName(QString::fromUtf8("save"));
 	        save->setGeometry(QRect(660, 650, 83, 24));
 	       save->setText("Apply");
+
+	connect(save, SIGNAL(clicked(bool)), this, SLOT(rename()));
+}
+
+void MainWindow::repopulateModel()
+{
+	model->clear();
+
+	Collection collection("collection");
+	collection.Build();
+
+	auto lista = collection.GetList();
+
+	for_each(lista.begin(), lista.end(), [&model](CollectionEntry entry){
+			model->appendRow(new CollectionItem(entry.name.c_str(), entry.path.c_str(), entry.hash.c_str()));
+		});
+
 }
 
 void MainWindow::setupFilters()
@@ -212,5 +223,19 @@ void MainWindow::result_changed_item(const QModelIndex & current, const QModelIn
 
 	QString newname = r.title + " (" + r.year + ")";
 
-	this->previev->setText(newname);
+	this->preview->setText(newname);
+}
+
+void MainWindow::rename()
+{
+	QString path = model->data(listView->currentIndex(), CollectionItem::PathRole).toString();
+
+	QFile file(path);
+	QFileInfo info(file);
+
+	QString newpath = info.absoluteDir().absoluteFilePath(this->preview->text() + "." + info.completeSuffix());
+
+	file.rename(newpath);
+
+	repopulateModel();
 }

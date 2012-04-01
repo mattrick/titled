@@ -1,13 +1,13 @@
 #include "Filter.hpp"
 #include "FilterGroup.hpp"
+#include "WordDB.hpp"
 
 #include <QDebug>
+#include <QBrush>
 
 Filter::Filter(QString text, int x, int y, QWidget * parent, Qt::WindowFlags f)
 	: QWidget(parent, f)
 {
-	State = SEARCH;
-
 	m_lineEdit = new QLineEdit(this);
 	m_lineEdit->setObjectName(QString::fromUtf8("lineEdit"));
 	m_lineEdit->setText(text);
@@ -89,10 +89,29 @@ Filter::Filter(QString text, int x, int y, QWidget * parent, Qt::WindowFlags f)
 	connect(m_search, SIGNAL(clicked(bool)), this, SLOT(update()));
 
 	connect(this, SIGNAL(changed(Action, QString)), fg, SLOT(update(Action, QString)));
+
+	db = new WordDB();
+
+		switch (db->Check(text.toStdString()))
+		{
+			case WordDB::None:
+				m_search->click();
+				break;
+
+			case WordDB::Black:
+				m_exclude->click();
+				break;
+
+			case WordDB::White:
+				m_include->click();
+				break;
+		}
 }
 
 void Filter::update()
 {
+	db->Remove(m_lineEdit->text().toStdString());
+
 	QPalette p(m_lineEdit->palette());
 
 	if (sender()->objectName() == m_add->objectName())
@@ -111,15 +130,19 @@ void Filter::update()
 
 	if (sender()->objectName() == m_include->objectName())
 	{
-		p.setColor(QPalette::Base,Qt::green);
+		QBrush brush(Qt::green, Qt::BrushStyle::Dense7Pattern);
+		p.setBrush(QPalette::Base, brush);
 		State = INCLUDE;
+		db->List(m_lineEdit->text().toStdString(), WordDB::White);
 		emit changed(Action::INCLUDE, m_lineEdit->text());
 	}
 
 	if (sender()->objectName() == m_exclude->objectName())
 	{
-		p.setColor(QPalette::Base,Qt::red);
-		State = EXCLUDE;
+
+		QBrush brush(Qt::red, Qt::BrushStyle::DiagCrossPattern);
+		p.setBrush(QPalette::Base, brush);
+		db->List(m_lineEdit->text().toStdString(), WordDB::Black);
 		emit changed(Action::EXCLUDE, m_lineEdit->text());
 	}
 
