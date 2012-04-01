@@ -6,6 +6,8 @@
 Filter::Filter(QString text, int x, int y, QWidget * parent, Qt::WindowFlags f)
 	: QWidget(parent, f)
 {
+	State = SEARCH;
+
 	m_lineEdit = new QLineEdit(this);
 	m_lineEdit->setObjectName(QString::fromUtf8("lineEdit"));
 	m_lineEdit->setText(text);
@@ -91,18 +93,47 @@ Filter::Filter(QString text, int x, int y, QWidget * parent, Qt::WindowFlags f)
 
 void Filter::update()
 {
+	QPalette p(m_lineEdit->palette());
+
 	if (sender()->objectName() == m_add->objectName())
+	{
+		p.setColor(QPalette::Base,Qt::green);
+		State = ADD;
 		emit changed(Action::ADD, m_lineEdit->text());
+	}
 
 	if (sender()->objectName() == m_remove->objectName())
-			emit changed(Action::REMOVE, m_lineEdit->text());
+	{
+		p.setColor(QPalette::Base,Qt::red);
+		State = REMOVE;
+		emit changed(Action::REMOVE, m_lineEdit->text());
+	}
 
 	if (sender()->objectName() == m_include->objectName())
-			emit changed(Action::INCLUDE, m_lineEdit->text());
+	{
+		p.setColor(QPalette::Base,Qt::green);
+		State = INCLUDE;
+		emit changed(Action::INCLUDE, m_lineEdit->text());
+	}
 
 	if (sender()->objectName() == m_exclude->objectName())
-			emit changed(Action::EXCLUDE, m_lineEdit->text());
+	{
+		p.setColor(QPalette::Base,Qt::red);
+		State = EXCLUDE;
+		emit changed(Action::EXCLUDE, m_lineEdit->text());
+	}
 
 	if (sender()->objectName() == m_search->objectName())
-			emit changed(Action::SEARCH, m_lineEdit->text());
+	{
+		p.setColor(QPalette::Base,Qt::white);
+		State = SEARCH;
+		emit changed(Action::SEARCH, m_lineEdit->text());
+	}
+
+	m_lineEdit->setPalette(p);
+}
+
+QString Filter::text()
+{
+	return m_lineEdit->text();
 }

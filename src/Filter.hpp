@@ -39,6 +39,9 @@
 
 	 QLineEdit* m_lineEdit;
 
+public:
+	 Action State;
+
 signals:
 	void changed(Action type, QString text);
 
@@ -48,5 +51,5 @@ private slots:
 public:
 	 explicit Filter(QString text, int x, int y, QWidget * parent = 0, Qt::WindowFlags f = 0);
 
-	 const QString& text() const;
+	 QString text();
  };

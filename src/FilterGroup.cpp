@@ -31,5 +31,13 @@ void FilterGroup::make(QStringList list)
 
 void FilterGroup::update(Action action, QString text)
 {
-	qDebug() << text;
+	QStringList tokens;
+
+	foreach (Filter* f, m_Filters)
+	{
+		if (f->State == SEARCH)
+			tokens.append(f->text());
+	}
+
+	emit queryChanged(tokens.join("+"));
 }

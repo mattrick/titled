@@ -22,6 +22,9 @@ private:
 public:
 	FilterGroup(int _x, int _y, QWidget * parent = 0, Qt::WindowFlags f = 0);
 
+signals:
+	void queryChanged(QString newquery);
+
 public slots:
 	void make(QStringList list);
 		void update(Action action, QString text);

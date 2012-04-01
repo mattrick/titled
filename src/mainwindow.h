@@ -26,8 +26,11 @@ class FilterGroup;
      void setupBrowser();
 
  private slots:
- 	 void zmiana_filmu(const QModelIndex & current, const QModelIndex & previous);
- 	 void koniec_ladowania();
+ 	 void item_changed(const QModelIndex & current, const QModelIndex & previous);
+ 	 void loading_finished();
+
+public slots:
+	void change_query(QString newquery);
 
 signals:
 	void refresh_group(QStringList list);
@@ -41,6 +44,7 @@ signals:
  	FilterGroup* group;
 
  	QWebPage* page;
+ 	QWebFrame* frame;
 
 
 	QScrollArea *scrollArea;

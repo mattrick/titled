@@ -29,6 +29,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::setup()
 {
+	this->setObjectName("okno");
 	this->resize(1024, 768);
 
 	centralWidget = new QWidget(this);
@@ -42,10 +43,11 @@ void MainWindow::setup()
 
 	connect(this, SIGNAL(refresh_group(QStringList)), group, SLOT(make(QStringList)));
 
+	connect(group, SIGNAL(queryChanged(QString)), this, SLOT(change_query(QString)));
+
 	setupCollection();
 	setupBrowser();
 	//setupFilters();
-
 }
 
 void MainWindow::setupCollection()
@@ -66,8 +68,21 @@ void MainWindow::setupCollection()
 		});
 
 	listView->setModel(model);
+	listView->setObjectName("listView");
 
-	connect(listView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(zmiana_filmu(const QModelIndex &, const QModelIndex &)));
+	page = new QWebPage(this);
+	page->settings()->setAttribute(QWebSettings::JavascriptEnabled, false);
+	frame = page->mainFrame();
+	frame->setObjectName("frame");
+	listView->selectionModel()->setObjectName("SelectionModel");
+
+	 QList<QNetworkCookie> cookies;
+		     QNetworkCookie cookie(QByteArray("welcomeScreen"),QByteArray("welcome_screen"));
+		     cookies.append(cookie);
+
+		 page->networkAccessManager()->cookieJar()->setCookiesFromUrl(cookies, QUrl("https://www.filmweb.pl"));
+
+	connect(listView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(item_changed(const QModelIndex &, const QModelIndex &)));
 }
 
 void MainWindow::setupFilters()
@@ -94,8 +109,9 @@ void MainWindow::setupBrowser()
 
 
 
-void MainWindow::zmiana_filmu(const QModelIndex & current, const QModelIndex & previous)
+void MainWindow::item_changed(const QModelIndex & current, const QModelIndex & previous)
 {
+	qDebug() << "\n" << "item_changed(), caller: " << sender()->objectName();
 	 if (current.isValid())
 	 {
 		 listView->setEnabled(false);
@@ -108,27 +124,27 @@ void MainWindow::zmiana_filmu(const QModelIndex & current, const QModelIndex & p
 
 		 emit refresh_group(tokens);
 
-		 QUrl query ("http://www.filmweb.pl/search?q=" + tokens.join("+"));
-
-		 page = new QWebPage(this);
-
-		     QList<QNetworkCookie> cookies;
-		     QNetworkCookie cookie(QByteArray("welcomeScreen"),QByteArray("welcome_screen"));
-		     cookies.append(cookie);
-
-		 page->networkAccessManager()->cookieJar()->setCookiesFromUrl(cookies, QUrl("https://www.filmweb.pl"));
-		 QWebFrame* frame = page->mainFrame();
-		 frame->setUrl(query);
-
-		 connect(frame, SIGNAL(loadFinished(bool)), this, SLOT(koniec_ladowania()));
-
-
+		 change_query(tokens.join("+"));
 	 }
 
 }
 
-void MainWindow::koniec_ladowania()
+void MainWindow::change_query(QString newquery)
 {
+	qDebug() << "change_query(), caller: " << sender()->objectName();
+
+	 QUrl query ("http://www.filmweb.pl/search?q=" + newquery);
+
+	 frame->setHtml("lolol");
+
+	 connect(frame, SIGNAL(loadFinished(bool)), this, SLOT(loading_finished()));
+}
+
+
+
+void MainWindow::loading_finished()
+{
+	qDebug() << "loading_finished(), caller: " << sender()->objectName();
 	listView->setEnabled(true);
 
 	class result
@@ -161,7 +177,7 @@ void MainWindow::koniec_ladowania()
 		 r.year = details[0];
 
 		 r.url = e.findFirst("a.searchResultTitle").attribute("href");
-		 qDebug() << r.title << " (" << r.original << ") (" << r.year << ") " << r.url;
+		 //qDebug() << r.title << " (" << r.original << ") (" << r.year << ") " << r.url;
 		 results.append(r);
 		}
 	 }
