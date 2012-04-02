@@ -8,10 +8,12 @@
 #include <QStringList>
 #include <QStringListModel>
 #include <QPushButton>
+#include <QLabel>
 
 class QListViewItem;
 class CollectionModel;
 class FilterGroup;
+class FilmwebSearch;
 
  class MainWindow : public QMainWindow
  {
@@ -24,6 +26,7 @@ class FilterGroup;
      void closeEvent(QCloseEvent *event);
      void setup();
      void setupCollection();
+     void setupResults();
      void setupFilters();
      void setupBrowser();
 
@@ -41,25 +44,30 @@ signals:
 	void refresh_group(QStringList list);
 
  private:
- 	 QWidget *centralWidget;
+		QWidget *centralWidget;
 
- 	CollectionModel *model;
- 	 QListView *listView;
+		CollectionModel *collectionModel;
+		QListView *collectionListView;
+		QLabel *collectionLabel;
 
- 	 QListView *resultsList;
- 	 QStringListModel* resultsModel;
+	    QLabel *resultsLabel;
+	    QListView *resultsListView;
+		QStringListModel* resultsModel;
+
+		QLabel *filmwebLabel;
+		QWebView *filmwebWebView;
+
+		FilmwebSearch* filmwebSearch;
 
  	QLineEdit *preview;
  	QPushButton *save;
 
  	FilterGroup* group;
 
- 	QWebPage* page;
- 	QWebFrame* frame;
+
 
 
 	QScrollArea *scrollArea;
 	QWidget *scrollAreaWidgetContents;
-	QWebView *m_Browser;
 
  };

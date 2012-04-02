@@ -15,6 +15,19 @@
 #include "mainwindow.h"
 #include "CollectionModel.hpp"
 #include "CollectionItem.hpp"
+#include "FilmwebSearch.hpp"
+
+class result
+	 {
+	 public:
+		 QString title;
+		 QString original;
+		 QUrl url;
+		 QString year;
+	 };
+
+
+QList<result*> results;
 
 MainWindow::MainWindow()
 {
@@ -37,7 +50,9 @@ void MainWindow::setup()
 
 	this->setCentralWidget(centralWidget);
 
-	QStringList tokens = QString("fsa fsa fxzf qw rq").split(" ");
+	setupCollection();
+	setupResults();
+	setupBrowser();
 
 	group = new FilterGroup(0, 600, this);
 
@@ -45,58 +60,63 @@ void MainWindow::setup()
 
 	connect(group, SIGNAL(queryChanged(QString)), this, SLOT(change_query(QString)));
 
-	resultsList = new QListView(centralWidget);
-			resultsList->setObjectName(QString::fromUtf8("resultsList"));
-			resultsList->setGeometry(QRect(0, 350, 300, 200));
 
-		resultsModel = new QStringListModel();
 
-		resultsList->setModel(resultsModel);
-
-	setupCollection();
-	setupBrowser();
 	//setupFilters();
+
+		collectionListView->selectionModel()->setObjectName("SelectionModel");
+
+
+
+		connect(collectionListView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(item_changed(const QModelIndex &, const QModelIndex &)));
+		connect(resultsListView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(result_changed_item(const QModelIndex &, const QModelIndex &)));
+
+		preview = new QLineEdit(centralWidget);
+		        preview->setObjectName(QString::fromUtf8("preview"));
+		        preview->setGeometry(QRect(0, 650, 600, 20));
+
+		    save = new QPushButton(centralWidget);
+		        save->setObjectName(QString::fromUtf8("save"));
+		        save->setGeometry(QRect(660, 650, 83, 24));
+		       save->setText("Apply");
+
+		connect(save, SIGNAL(clicked(bool)), this, SLOT(rename()));
+
+		//temp
+		connect(filmwebSearch, SIGNAL(queryFinished()), this, SLOT(loading_finished()));
 }
 
 void MainWindow::setupCollection()
 {
-	listView = new QListView(centralWidget);
-	listView->setObjectName(QString::fromUtf8("listView"));
-	listView->setGeometry(QRect(0, 0, 300, 300));
+	collectionModel = new CollectionModel(new CollectionItem, this);
+	collectionModel->Update();
 
-	model = new CollectionModel(new CollectionItem, this);
+	collectionLabel = new QLabel(centralWidget);
+	collectionLabel->setObjectName(QString::fromUtf8("collectionLabel"));
+	collectionLabel->setGeometry(QRect(0, 0, 251, 16));
+	collectionLabel->setText("Lokalna kolekcja");
 
-	model->Update();
+	collectionListView = new QListView(centralWidget);
+	collectionListView->setObjectName(QString::fromUtf8("collectionListView"));
+	collectionListView->setGeometry(QRect(0, 20, 300, 300));
+	collectionListView->setModel(collectionModel);
+}
 
-	listView->setModel(model);
-	listView->setObjectName("listView");
+void MainWindow::setupResults()
+{
+	resultsModel = new QStringListModel();
 
-	page = new QWebPage(this);
-	//page->settings()->setAttribute(QWebSettings::JavascriptEnabled, false);
-	frame = page->mainFrame();
-	frame->setObjectName("frame");
-	listView->selectionModel()->setObjectName("SelectionModel");
+    resultsLabel = new QLabel(centralWidget);
+    resultsLabel->setObjectName(QString::fromUtf8("resultsLabel"));
+    resultsLabel->setGeometry(QRect(0, 320, 301, 16));
+    resultsLabel->setText("Wyniki wyszukiwania");
 
-	 QList<QNetworkCookie> cookies;
-		     QNetworkCookie cookie(QByteArray("welcomeScreen"),QByteArray("welcome_screen"));
-		     cookies.append(cookie);
+    resultsListView = new QListView(centralWidget);
+    resultsListView->setObjectName(QString::fromUtf8("resultsListView"));
+    resultsListView->setGeometry(QRect(0, 340, 301, 161));
+    resultsListView->setModel(resultsModel);
 
-		 page->networkAccessManager()->cookieJar()->setCookiesFromUrl(cookies, QUrl("https://www.filmweb.pl"));
-
-	connect(listView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(item_changed(const QModelIndex &, const QModelIndex &)));
-	connect(resultsList->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(result_changed_item(const QModelIndex &, const QModelIndex &)));
-	connect(frame, SIGNAL(loadFinished(bool)), this, SLOT(loading_finished()));
-
-	preview = new QLineEdit(centralWidget);
-	        preview->setObjectName(QString::fromUtf8("preview"));
-	        preview->setGeometry(QRect(0, 650, 600, 20));
-
-	    save = new QPushButton(centralWidget);
-	        save->setObjectName(QString::fromUtf8("save"));
-	        save->setGeometry(QRect(660, 650, 83, 24));
-	       save->setText("Apply");
-
-	connect(save, SIGNAL(clicked(bool)), this, SLOT(rename()));
+    filmwebSearch = new FilmwebSearch(&results);
 }
 
 void MainWindow::setupFilters()
@@ -115,10 +135,15 @@ void MainWindow::setupFilters()
 
 void MainWindow::setupBrowser()
 {
-	m_Browser = new QWebView(centralWidget);
-	m_Browser->setObjectName(QString::fromUtf8("m_Browser"));
-	m_Browser->setGeometry(QRect(384, 0, 640, 480));
-	m_Browser->setUrl(QUrl("about:blank"));
+	filmwebLabel = new QLabel(centralWidget);
+	filmwebLabel->setObjectName(QString::fromUtf8("filmwebLabel"));
+	filmwebLabel->setGeometry(QRect(310, 0, 721, 16));
+	filmwebLabel->setText("Podgląd na filmwebie");
+
+	filmwebWebView = new QWebView(centralWidget);
+	filmwebWebView->setObjectName(QString::fromUtf8("filmwebWebView"));
+	filmwebWebView->setGeometry(QRect(310, 20, 711, 481));
+	filmwebWebView->setUrl(QUrl("about:blank"));
 }
 
 
@@ -127,8 +152,8 @@ void MainWindow::item_changed(const QModelIndex & current, const QModelIndex & p
 {
 	 if (current.isValid())
 	 {
-		 listView->setEnabled(false);
-		 QString name = model->data(current, CollectionItem::NameRole).toString();
+		 collectionListView->setEnabled(false);
+		 QString name = collectionModel->data(current, CollectionItem::NameRole).toString();
 
 		 QStringList tokens = name.split(QRegExp("[^\\w']"), QString::SkipEmptyParts);
 		 /*
@@ -144,75 +169,37 @@ void MainWindow::item_changed(const QModelIndex & current, const QModelIndex & p
 
 void MainWindow::change_query(QString newquery)
 {
-	 QUrl query ("http://www.filmweb.pl/search?q=" + newquery);
-
-	 frame->load(query);
+	qDebug() << "change";
+	 filmwebSearch->queryChanged(newquery.split("+"));
 }
-
-class result
-	 {
-	 public:
-		 QString title;
-		 QString original;
-		 QUrl url;
-		 QString year;
-	 };
-
-
-QList<result> results;
-
 
 void MainWindow::loading_finished()
 {
-	results.clear();
-	listView->setEnabled(true);
-
-
-	 QWebElement document = page->mainFrame()->documentElement();
-	 QWebElementCollection links = document.findAll("li.searchResult");
-	 foreach (QWebElement e, links) {
-		if (e.findFirst("span.searchResultTypeAlias").toPlainText() == "film" || e.findFirst("span.searchResultTypeAlias").toPlainText() == "TV")
-		{
-			QString plainName = e.findFirst("a.searchResultTitle").toPlainText();
-
-		 QStringList name = plainName.split(QRegExp(" / "), QString::SkipEmptyParts);
-		 result r;
-		 r.title = name[0];
-		 if (name.size() > 1)
-			 r.original = name[1];
-
-		 QString plainDetails = e.findFirst("div.searchResultDetails").toPlainText();
-		 QStringList details = plainDetails.split(QRegExp(" | "), QString::SkipEmptyParts);
-
-		 r.year = details[0];
-
-		 r.url = "http://www.filmweb.pl" + e.findFirst("a.searchResultTitle").attribute("href");
-		 results.append(r);
-		}
-	 }
+	collectionListView->setEnabled(true);
 
 	 QStringList list;
 
-	 foreach(result r, results)
+	 foreach(result* r, results)
 	 {
-		 list.append(r.title);
+		 list.append(r->title);
 	 }
 	 resultsModel->setStringList(list);
+
 }
 
 void MainWindow::result_changed_item(const QModelIndex & current, const QModelIndex & previous)
 {
-	result r = results.at(current.row());
-	this->m_Browser->load(r.url);
+	result* r = results.at(current.row());
+	this->filmwebWebView->load(r->url);
 
-	QString newname = r.title + " (" + r.year + ")";
+	QString newname = r->title + " (" + r->year + ")";
 
 	this->preview->setText(newname);
 }
 
 void MainWindow::rename()
 {
-	QString path = model->data(listView->currentIndex(), CollectionItem::PathRole).toString();
+	QString path = collectionModel->data(collectionListView->currentIndex(), CollectionItem::PathRole).toString();
 
 	QFile file(path);
 	QFileInfo info(file);
@@ -221,5 +208,5 @@ void MainWindow::rename()
 
 	file.rename(newpath);
 
-	model->Update();
+	collectionModel->Update();
 }

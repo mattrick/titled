@@ -9,6 +9,9 @@ SET(filmweb_SOURCES
 	Collection.cpp
 	CollectionModel.cpp
 	CollectionItem.cpp
+	#ResultsModel.cpp
+	#ResultsItem.cpp
+	FilmwebSearch.cpp
 	mainwindow.cpp
 	Filter.cpp
 	FilterGroup.cpp
@@ -18,6 +21,9 @@ SET(filmweb_QT_HEADERS
 	mainwindow.h
 	CollectionModel.hpp
 	CollectionItem.hpp
+	#ResultsModel.hpp
+	#ResultsItem.hpp
+	FilmwebSearch.hpp
 	Filter.hpp
 	FilterGroup.hpp)
 
