@@ -44,6 +44,6 @@ class CollectionModel : public QAbstractListModel
 		QVariant data(const QModelIndex &index, int role) const;
 
 	public slots:
-		void Build();
+		void Update();
 };
 

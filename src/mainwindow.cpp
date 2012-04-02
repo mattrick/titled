@@ -66,7 +66,7 @@ void MainWindow::setupCollection()
 
 	model = new CollectionModel(new CollectionItem, this);
 
-	model->Build();
+	model->Update();
 
 	listView->setModel(model);
 	listView->setObjectName("listView");
@@ -221,5 +221,5 @@ void MainWindow::rename()
 
 	file.rename(newpath);
 
-	model->Build();
+	model->Update();
 }
