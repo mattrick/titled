@@ -2,7 +2,7 @@
 
 WordDB::WordDB()
 {
-	m_DB = new SQLite3x::DB("words.db");
+	m_DB = new SQLite3x::DB("sqlite.db");
 
 	m_DB->Exec("CREATE TABLE IF NOT EXISTS words (word TEXT, type INTEGER);");
 }
