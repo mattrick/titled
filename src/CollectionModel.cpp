@@ -4,13 +4,19 @@
 
 #include <QSettings>
 
-
 CollectionModel::CollectionModel(CollectionItem* prototype, QObject *parent) :
 QAbstractListModel(parent)
 {
 	setRoleNames(prototype->roleNames());
 
 	m_Collection = new Collection();
+}
+
+CollectionModel::~CollectionModel()
+{
+	clear();
+
+	delete m_Collection;
 }
 
 void CollectionModel::Update()
@@ -35,11 +41,6 @@ QVariant CollectionModel::data(const QModelIndex &index, int role) const
 		return QVariant();
 
 	return m_List.at(index.row())->data(role);
-}
-
-CollectionModel::~CollectionModel()
-{
-	clear();
 }
 
 void CollectionModel::appendRow(CollectionItem *item)

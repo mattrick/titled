@@ -16,14 +16,20 @@ Collection::Collection()
 	QSettings settings;
 
 	settings.beginGroup("Collection");
-	//m_Paths = settings.value("path", QStringList()).toStringList();
-	m_Paths = settings.value("path", QStringList("collection")).toStringList();
-
 	m_DB = new SQLite3x::DB(settings.value("database", "sqlite.db").toString().toStdString());
+	m_Paths = settings.value("paths", QStringList("")).toStringList();
+	settings.endGroup();
 }
 
 Collection::~Collection()
 {
+	QSettings settings;
+
+	settings.beginGroup("Collection");
+	settings.setValue("database", QString::fromStdString(m_DB->GetFileName()));
+	settings.setValue("paths", m_Paths);
+	settings.endGroup();
+
 	delete m_DB;
 }
 

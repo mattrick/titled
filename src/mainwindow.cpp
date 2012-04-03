@@ -177,5 +177,6 @@ void MainWindow::rename()
 
 	file.rename(newpath);
 
+	collectionListView->setCurrentIndex(QModelIndex());
 	collectionModel->Update();
 }

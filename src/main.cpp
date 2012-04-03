@@ -1,4 +1,5 @@
 #include <QApplication>
+#include <QSettings>
 
 #include "mainwindow.h"
 
@@ -9,6 +10,8 @@ int main(int argc, char *argv[])
     QApplication::setOrganizationDomain("none.empty");
     QApplication::setApplicationName("filmweb");
     QApplication::setApplicationVersion("0.2");
+
+    QSettings::setDefaultFormat(QSettings::IniFormat);
 
     MainWindow mainWin;
 
