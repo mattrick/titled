@@ -59,8 +59,7 @@ signals:
 
 		QLabel *filmwebLabel;
 		QWebView *filmwebWebView;
-
-		//FilterGroup* filterGroup;
+		FilterGroup* filterGroup;
 
  	QLineEdit *preview;
  	QPushButton *save;

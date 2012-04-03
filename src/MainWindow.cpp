@@ -12,12 +12,14 @@
 #include <QLabel>
 #include <QFile>
 
-#include "mainwindow.h"
+#include "MainWindow.hpp"
 #include "CollectionModel.hpp"
 #include "CollectionItem.hpp"
 #include "FilmwebSearch.hpp"
 #include "ResultsModel.hpp"
 #include "ResultsItem.hpp"
+#include "FilterGroup.hpp"
+#include "Filter.hpp"
 
 MainWindow::MainWindow()
 {
@@ -46,11 +48,11 @@ void MainWindow::setup()
 
 		preview = new QLineEdit(centralWidget);
 		        preview->setObjectName(QString::fromUtf8("preview"));
-		        preview->setGeometry(QRect(0, 650, 600, 20));
+		        preview->setGeometry(QRect(0, 700, 600, 20));
 
 		    save = new QPushButton(centralWidget);
 		        save->setObjectName(QString::fromUtf8("save"));
-		        save->setGeometry(QRect(660, 650, 83, 24));
+		        save->setGeometry(QRect(660, 700, 83, 24));
 		       save->setText("Apply");
 
 		connect(save, SIGNAL(clicked(bool)), this, SLOT(rename()));
@@ -110,6 +112,8 @@ void MainWindow::setupBrowser()
 
 void MainWindow::setupFilters()
 {
+	filterGroup = new FilterGroup(centralWidget);
+	filterGroup->setGeometry(QRect(0, 520, 1024, 150));
 }
 
 void MainWindow::setupConnects()
@@ -133,7 +137,7 @@ void MainWindow::collectionSelectionChanged(const QModelIndex & current, const Q
 		  * process with filtering
 		  */
 
-		 emit refresh_group(tokens);
+		 filterGroup->makeList(tokens);
 
 		 filmwebWebView->load(QUrl("about:blank"));
 		 preview->clear();
