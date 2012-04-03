@@ -5,6 +5,7 @@
 #include <QFont>
 #include <QApplication>
 #include <QPainter>
+#include <QTextOption>
 
 #include <QDebug>
 
@@ -19,9 +20,25 @@ ResultsListViewDelegate::~ResultsListViewDelegate()
 QSize ResultsListViewDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index ) const
 {
     QFont font = QApplication::font();
-    QFontMetrics fm(font);
 
-    return(QSize(0 , fm.height() + 50));
+    QFontMetrics fm(font);
+    QString headerText = index.data(ResultsItem::TitleRole).toString();
+    if (!index.data(ResultsItem::YearRole).toString().isEmpty())
+    	headerText += " (" + index.data(ResultsItem::YearRole).toString() + ")";
+
+    QFont subFont(font);
+    subFont.setPointSize(font.pointSize() - 2);
+
+    QFontMetrics sfm(subFont);
+    QString subText = index.data(ResultsItem::OriginalRole).toString();
+
+    QSize hint;
+
+    hint.setWidth(std::max(fm.width(headerText), sfm.width(subText)));
+
+    hint.setHeight(5 + fm.height() + sfm.height() + 5);
+
+    return(hint);
 }
 
 void ResultsListViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
@@ -31,7 +48,12 @@ void ResultsListViewDelegate::paint(QPainter *painter, const QStyleOptionViewIte
 	if (option.state & QStyle::State_Selected)
 	             painter->fillRect(option.rect, option.palette.highlight());
 
-
+	/*
+	 * TODO:
+	 *
+	 * Fix graphical bug which occures when text is horizontally centered and longer than view's rect.
+	 *
+	 */
 
 	/*QBrush backBrush;
 	    QColor foreColor;
@@ -67,13 +89,15 @@ void ResultsListViewDelegate::paint(QPainter *painter, const QStyleOptionViewIte
        break;
        }*/
 
-    QFont font = QApplication::font();
-        //font.setPixelSize(font.weight()+);
+	if (option.state & QStyle::State_Selected)
+		painter->setPen(option.palette.highlightedText().color());
+
+		QFont font = QApplication::font();
         QFontMetrics fm(font);
 
-        QString headerText = qvariant_cast<QString>(index.data(ResultsItem::TitleRole));
-
-        qDebug() << headerText;
+        QString headerText = index.data(ResultsItem::TitleRole).toString();
+        if (!index.data(ResultsItem::YearRole).toString().isEmpty())
+            	headerText += " (" + index.data(ResultsItem::YearRole).toString() + ")";
 
         QRect headerRect = option.rect;
 
@@ -83,8 +107,24 @@ void ResultsListViewDelegate::paint(QPainter *painter, const QStyleOptionViewIte
 
         //painter->drawPixmap(QPoint(iconRect.right()/2,iconRect.top()/2),icon.pixmap(iconsize.width(),iconsize.height()));
 
+
         painter->setFont(font);
-        painter->drawText(headerRect,headerText);
+        painter->drawText(headerRect,headerText, QTextOption(Qt::AlignHCenter));
+
+ QFont subFont(font);
+           subFont.setPointSize(font.pointSize() - 2);
+
+           QFontMetrics sfm(subFont);
+           QString subText = index.data(ResultsItem::OriginalRole).toString();
+
+        QRect subRect = option.rect;
+
+        subRect.setLeft(0);
+        subRect.setTop(headerRect.bottom());
+        subRect.setBottom(subRect.top() + sfm.height());
+
+        painter->setFont(subFont);
+                painter->drawText(subRect,subText, QTextOption(Qt::AlignHCenter));
 
     painter->restore();
 
