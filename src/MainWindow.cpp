@@ -21,6 +21,13 @@
 #include "FilterGroup.hpp"
 #include "Filter.hpp"
 
+/*
+ * TODO:
+ *
+ * QFont::setPixelSize: Pixel size <= 0 (0)
+ *
+ */
+
 MainWindow::MainWindow()
 {
 	setup();
@@ -29,8 +36,6 @@ MainWindow::MainWindow()
 void MainWindow::closeEvent(QCloseEvent *event)
 {
 }
-
-#include "FilterGroup.hpp"
 
 void MainWindow::setup()
 {
@@ -113,7 +118,7 @@ void MainWindow::setupBrowser()
 void MainWindow::setupFilters()
 {
 	filterGroup = new FilterGroup(centralWidget);
-	filterGroup->setGeometry(QRect(0, 520, 1024, 150));
+	filterGroup->setGeometry(QRect(0, 520, 1024, 100));
 }
 
 void MainWindow::setupConnects()
@@ -130,6 +135,7 @@ void MainWindow::collectionSelectionChanged(const QModelIndex & current, const Q
 	 if (current.isValid())
 	 {
 		 collectionListView->setEnabled(false);
+		 filterGroup->setEnabled(false);
 		 QString name = collectionModel->data(current, CollectionItem::NameRole).toString();
 
 		 QStringList tokens = name.split(QRegExp("[^\\w']"), QString::SkipEmptyParts);
@@ -151,6 +157,7 @@ void MainWindow::queryFinished(bool ok)
 	resultsListView->setCurrentIndex(QModelIndex());
 
 	collectionListView->setEnabled(true);
+	filterGroup->setEnabled(true);
 
 	if (!ok)
 		resultsModel->printError();

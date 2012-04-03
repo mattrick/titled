@@ -15,10 +15,10 @@ Filter::Filter(QString text, QWidget* parent)
 	lineEdit->setText(text);
 
 	QFontMetrics fm = lineEdit->fontMetrics();
-	lineEdit->resize(std::max(fm.width(text)+10, 50), 21);
+	lineEdit->setGeometry(QRect(15, 0, std::max(fm.width(text)+10, 50), 21));
 
-	int x2 = (lineEdit->width() - 2*16 - 2) / 2;
-	int x1 = (lineEdit->width() - 16) / 2;
+	int x2 = 15 + (lineEdit->width() - 2*16 - 2) / 2;
+	int x1 = 15 + (lineEdit->width() - 16) / 2;
 
 	this->add = new ClickableImage(QPoint(x2, 21), QPixmap(":/images/add.png"), this);
 	this->include = new ClickableImage(QPoint(x2 + 16 + 2, 21), QPixmap(":/images/include.png"), this);
@@ -26,7 +26,7 @@ Filter::Filter(QString text, QWidget* parent)
 	this->exclude = new ClickableImage(QPoint(x2 + 16 + 2, 21 + 16 + 2), QPixmap(":/images/exclude.png"), this);
 	this->search = new ClickableImage(QPoint(x1, 21 + 2 * 16 + 2 * 2), QPixmap(":/images/search.png"), this);
 
-	connect(add, SIGNAL(clicked()), this, SLOT(onClick()));
+	//connect(add, SIGNAL(clicked()), this, SLOT(onClick()));
 
 	setGeometry(QRect(0, 0, lineEdit->width() + 30, 21 + 5*16));
 }
