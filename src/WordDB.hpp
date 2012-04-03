@@ -4,6 +4,12 @@
 
 #include <QString>
 
+/*
+ * TODO:
+ *
+ * matching via regex
+ */
+
 class WordDB
 {
 protected:

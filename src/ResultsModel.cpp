@@ -90,6 +90,8 @@ void ResultsModel::clear()
 {
 	qDeleteAll(m_List);
 	m_List.clear();
+
+	reset();
 }
 
 bool ResultsModel::removeRow(int row, const QModelIndex &parent)

@@ -14,7 +14,7 @@ WordDB::~WordDB()
 
 void WordDB::List(QString word, WordDB::Type type)
 {
-	if (Check(word) != type)
+	if (Check(word) != type && type != WordDB::None)
 	{
 		if (!Check(word))
 			m_DB->Query("INSERT INTO words VALUES (?, ?);")->Bind(word.toUtf8().constData(), (int)type)->Execute();

@@ -96,7 +96,7 @@ void Collection::Scan()
 			  // then we tell our directory_walker object to explicitly take next element until the loop finishes
 			  directory_walker.next();
 
-			  sregex extension_check = sregex::compile("(mp4|avi|rmvb|rm|256|mkv)");
+			  sregex extension_check = sregex::compile("(3g2|3gp|asf|asx|avi|flv|mov|mp4|mpg|rm|swf|vob|wmv|mkv|rmvb)");
 			 // I want to list just mp3 files!
 			 if(regex_match(directory_walker.fileInfo().completeSuffix().toStdString(), extension_check))
 			 {		 // then we take a filename and display it to a listWidget like the code below:

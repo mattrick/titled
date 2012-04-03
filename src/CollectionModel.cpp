@@ -105,6 +105,8 @@ void CollectionModel::clear()
 {
 	qDeleteAll(m_List);
 	m_List.clear();
+
+	reset();
 }
 
 bool CollectionModel::removeRow(int row, const QModelIndex &parent)

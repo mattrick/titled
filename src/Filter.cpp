@@ -110,7 +110,7 @@ void Filter::setState(State state)
 
 				WordDB db;
 
-				db.List(lineEdit->text(), WordDB::None);
+				db.Remove(lineEdit->text());
 			}
 				break;
 

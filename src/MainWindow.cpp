@@ -52,17 +52,7 @@ void MainWindow::setup()
 	setupResults();
 	setupBrowser();
 	setupFilters();
-
-		preview = new QLineEdit(centralWidget);
-		        preview->setObjectName(QString::fromUtf8("preview"));
-		        preview->setGeometry(QRect(0, 700, 600, 20));
-
-		    save = new QPushButton(centralWidget);
-		        save->setObjectName(QString::fromUtf8("save"));
-		        save->setGeometry(QRect(660, 700, 83, 24));
-		       save->setText("Apply");
-
-		connect(save, SIGNAL(clicked(bool)), this, SLOT(rename()));
+	setupPreview();
 
 	setupConnects();
 }
@@ -99,7 +89,7 @@ void MainWindow::setupResults()
 
     resultsListView = new QListView(centralWidget);
     resultsListView->setObjectName(QString::fromUtf8("resultsListView"));
-    resultsListView->setGeometry(QRect(0, 340, 301, 161));
+    resultsListView->setGeometry(QRect(0, 340, 300, 250));
     resultsListView->setModel(resultsModel);
 
     resultsListViewDelegate = new ResultsListViewDelegate();
@@ -119,14 +109,26 @@ void MainWindow::setupBrowser()
 
 	filmwebWebView = new QWebView(centralWidget);
 	filmwebWebView->setObjectName(QString::fromUtf8("filmwebWebView"));
-	filmwebWebView->setGeometry(QRect(310, 20, 711, 481));
+	filmwebWebView->setGeometry(QRect(310, 20, 714, 570));
 	filmwebWebView->setUrl(QUrl("about:blank"));
 }
 
 void MainWindow::setupFilters()
 {
 	filterGroup = new FilterGroup(centralWidget);
-	filterGroup->setGeometry(QRect(0, 520, 1024, 100));
+	filterGroup->setGeometry(QRect(0, 640, 1024, 100));
+}
+
+void MainWindow::setupPreview()
+{
+	previewEdit = new QLineEdit(centralWidget);
+	previewEdit->setObjectName(QString::fromUtf8("previewEdit"));
+	previewEdit->setGeometry(QRect(0, 748, 924, 20));
+
+	saveButton = new QPushButton(centralWidget);
+	saveButton->setObjectName(QString::fromUtf8("saveButton"));
+	saveButton->setGeometry(QRect(924, 748, 100, 20));
+	saveButton->setText(tr("Rename"));
 }
 
 void MainWindow::setupConnects()
@@ -136,6 +138,7 @@ void MainWindow::setupConnects()
 	connect(filmwebSearch, SIGNAL(noResults()), resultsModel, SLOT(printEmpty()));
 	connect(filterGroup, SIGNAL(queryChanged(QStringList)), this, SLOT(onQueryChange(QStringList)));
 	connect(resultsListView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(resultsSelectionChanged(const QModelIndex &, const QModelIndex &)));
+	connect(saveButton, SIGNAL(clicked(bool)), this, SLOT(rename()));
 }
 
 void MainWindow::collectionSelectionChanged(const QModelIndex & current, const QModelIndex & previous)
@@ -151,7 +154,7 @@ void MainWindow::collectionSelectionChanged(const QModelIndex & current, const Q
 		 filterGroup->makeList(tokens);
 
 		 filmwebWebView->load(QUrl("about:blank"));
-		 preview->clear();
+		 previewEdit->clear();
 	 }
 }
 
@@ -166,16 +169,26 @@ void MainWindow::queryFinished(bool ok)
 		resultsModel->printError();
 }
 
+/*
+ * TODO:
+ *
+ * Custom saving scheme
+ *
+ */
+
 void MainWindow::resultsSelectionChanged(const QModelIndex & current, const QModelIndex & previous)
 {
 	if (current.isValid())
 	{
-		this->filmwebWebView->load(resultsModel->data(current, ResultsItem::URLRole).toString());
+		filmwebWebView->load(resultsModel->data(current, ResultsItem::URLRole).toString());
 
 		QString newname = resultsModel->data(current, ResultsItem::TitleRole).toString();
 		newname += " (" + resultsModel->data(current, ResultsItem::YearRole).toString() + ")";
 
-		this->preview->setText(newname);
+		if (!filterGroup->getExtras().empty())
+			newname += " " + filterGroup->getExtras().join(".");
+
+		previewEdit->setText(newname);
 	}
 }
 
@@ -192,10 +205,25 @@ void MainWindow::rename()
 	QFile file(path);
 	QFileInfo info(file);
 
-	QString newpath = info.absoluteDir().absoluteFilePath(this->preview->text() + "." + info.completeSuffix());
+	QString newpath = info.absoluteDir().absoluteFilePath(previewEdit->text() + "." + info.completeSuffix());
 
 	file.rename(newpath);
 
-	collectionListView->setCurrentIndex(QModelIndex());
 	collectionModel->Update();
+
+	clearEverything();
+}
+
+void MainWindow::clearEverything()
+{
+	collectionListView->setCurrentIndex(QModelIndex());
+
+	resultsModel->clear();
+	resultsListView->setCurrentIndex(QModelIndex());
+
+	filterGroup->clear();
+
+	filmwebWebView->load(QUrl("about:blank"));
+
+	previewEdit->clear();
 }

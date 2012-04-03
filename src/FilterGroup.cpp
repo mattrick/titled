@@ -78,4 +78,27 @@ void FilterGroup::onFilterStateChanged()
 	}
 
 	emit queryChanged(list);
+
+	/*list.clear();
+
+	foreach (Filter* f, m_Filters)
+	{
+		if (f->getState() == Filter::ADD || f->getState() == Filter::INCLUDE)
+			list.append(f->text());
+	}
+
+	emit extrasChanged(list);*/
+}
+
+QStringList FilterGroup::getExtras()
+{
+	QStringList list;
+
+	foreach (Filter* f, m_Filters)
+	{
+		if (f->getState() == Filter::ADD || f->getState() == Filter::INCLUDE)
+			list.append(f->text());
+	}
+
+	return list;
 }

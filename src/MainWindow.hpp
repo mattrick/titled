@@ -32,6 +32,7 @@ class ResultsListViewDelegate;
      void setupResults();
      void setupBrowser();
      void setupFilters();
+     void setupPreview();
      void setupConnects();
 
  private slots:
@@ -40,13 +41,7 @@ class ResultsListViewDelegate;
  	void resultsSelectionChanged(const QModelIndex & current, const QModelIndex & previous);
  	void rename();
  	void onQueryChange(QStringList words);
-
-public slots:
-	//void change_query(QString newquery);
-
-
-signals:
-	void refresh_group(QStringList list);
+ 	void clearEverything();
 
  private:
 		QWidget *centralWidget;
@@ -61,12 +56,11 @@ signals:
 	    ResultsListViewDelegate *resultsListViewDelegate;
 		ResultsModel* resultsModel;
 		FilmwebSearch* filmwebSearch;
+		FilterGroup* filterGroup;
 
 		QLabel *filmwebLabel;
 		QWebView *filmwebWebView;
-		FilterGroup* filterGroup;
 
- 	QLineEdit *preview;
- 	QPushButton *save;
-
+		QLineEdit *previewEdit;
+		QPushButton *saveButton;
  };

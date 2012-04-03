@@ -26,9 +26,12 @@ class FilterGroup : public QScrollArea
 
 		void clear();
 
+		QStringList getExtras();
+
 	public slots:
 		void onFilterStateChanged();
 
 	signals:
 		void queryChanged(QStringList);
+		//void extrasChanged(QStringList);
 };

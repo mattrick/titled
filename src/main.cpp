@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 
     QApplication::setOrganizationName("mattrick");
     QApplication::setOrganizationDomain("none.empty");
-    QApplication::setApplicationName("filmweb");
+    QApplication::setApplicationName("titled");
     QApplication::setApplicationVersion("0.2");
 
     QSettings::setDefaultFormat(QSettings::IniFormat);
