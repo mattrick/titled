@@ -14,22 +14,6 @@ class ResultsModel : public QAbstractListModel
 	private:
 		QList<ResultsItem*> m_List;
 
-	/* QAbstractListModel */
-		void appendRow(ResultsItem *item);
-		void appendRows(const QList<ResultsItem *> &items);
-		void insertRow(int row, ResultsItem *item);
-
-		//void handleItemChange();
-
-		//ResultsItem* find(const QString &hash) const;
-		QModelIndex indexFromItem(const ResultsItem *item) const;
-
-		void clear();
-
-		bool removeRow(int row, const QModelIndex &parent);
-		bool removeRows(int row, int count, const QModelIndex &parent);
-		ResultsItem* takeRow(int row);
-
 	protected:
 
 	public:
@@ -39,10 +23,23 @@ class ResultsModel : public QAbstractListModel
 		int rowCount(const QModelIndex &parent = QModelIndex()) const;
 		QVariant data(const QModelIndex &index, int role) const;
 
+
+		void appendRow(ResultsItem *item);
+		void appendRows(const QList<ResultsItem *> &items);
+		void insertRow(int row, ResultsItem *item);
+
+		//void handleItemChange();
+
+		//ResultsItem* find(const QString &hash) const;
+		QModelIndex indexFromItem(const ResultsItem *item) const;
+
+		bool removeRow(int row, const QModelIndex &parent);
+		bool removeRows(int row, int count, const QModelIndex &parent);
+		ResultsItem* takeRow(int row);
+		void clear();
+
 	public slots:
 		void printError();
 		void printEmpty();
-
-		friend class FilmwebSearch;
 };
 

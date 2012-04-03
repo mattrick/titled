@@ -16,12 +16,19 @@ class FilterGroup : public QScrollArea
 
 		int m_Pos;
 
+		void append(QString text);
+
 	public:
 		FilterGroup(QWidget *parent = 0);
 		~FilterGroup();
 
-		void append(QString text);
 		void makeList(QStringList list);
 
 		void clear();
+
+	public slots:
+		void onFilterStateChanged();
+
+	signals:
+		void queryChanged(QStringList);
 };

@@ -46,9 +46,12 @@ class Filter : public QWidget
 		Filter(QString text, QWidget* parent = 0);
 		~Filter();
 
+		QString text();
+		State getState();
+
 	public slots:
 		void setState(State state);
 
 	signals:
-		void changedState();
+		void stateChanged();
 };

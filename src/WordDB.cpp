@@ -12,28 +12,28 @@ WordDB::~WordDB()
 	delete m_DB;
 }
 
-void WordDB::List(std::string word, WordDB::Type type)
+void WordDB::List(QString word, WordDB::Type type)
 {
 	if (Check(word) != type)
 	{
 		if (!Check(word))
-			m_DB->Query("INSERT INTO words VALUES (?, ?);")->Bind(word, (int)type)->Execute();
+			m_DB->Query("INSERT INTO words VALUES (?, ?);")->Bind(word.toUtf8().constData(), (int)type)->Execute();
 		else
-			m_DB->Query("UPDATE words SET type=? WHERE word=?);")->Bind((int)type, word)->Execute();
+			m_DB->Query("UPDATE words SET type=? WHERE word=?);")->Bind((int)type, word.toUtf8().constData())->Execute();
 	}
 }
 
-void WordDB::Remove(std::string word)
+void WordDB::Remove(QString word)
 {
 	if (Check(word))
-		m_DB->Query("DELETE FROM words WHERE word=?")->Bind(word)->Execute();
+		m_DB->Query("DELETE FROM words WHERE word=?")->Bind(word.toUtf8().constData())->Execute();
 }
 
-WordDB::Type WordDB::Check(std::string word)
+WordDB::Type WordDB::Check(QString word)
 {
 	WordDB::Type type = None;
 
-	m_DB->Query("SELECT type FROM words WHERE word=?")->Bind(word)->Execute([&type](int _type){
+	m_DB->Query("SELECT type FROM words WHERE word=?")->Bind(word.toUtf8().constData())->Execute([&type](int _type){
 		type = (WordDB::Type)_type;
 	});
 

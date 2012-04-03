@@ -134,7 +134,7 @@ void MainWindow::setupConnects()
 	connect(collectionListView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(collectionSelectionChanged(const QModelIndex &, const QModelIndex &)));
 	connect(filmwebSearch, SIGNAL(queryFinished(bool)), this, SLOT(queryFinished(bool)));
 	connect(filmwebSearch, SIGNAL(noResults()), resultsModel, SLOT(printEmpty()));
-	//connect(group, SIGNAL(queryChanged(QStringList)), filmwebSearch, SLOT(queryChanged(QStringList)));
+	connect(filterGroup, SIGNAL(queryChanged(QStringList)), this, SLOT(onQueryChange(QStringList)));
 	connect(resultsListView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(resultsSelectionChanged(const QModelIndex &, const QModelIndex &)));
 }
 
@@ -147,16 +147,11 @@ void MainWindow::collectionSelectionChanged(const QModelIndex & current, const Q
 		 QString name = collectionModel->data(current, CollectionItem::NameRole).toString();
 
 		 QStringList tokens = name.split(QRegExp("[^\\w']"), QString::SkipEmptyParts);
-		 /*
-		  * process with filtering
-		  */
 
 		 filterGroup->makeList(tokens);
 
 		 filmwebWebView->load(QUrl("about:blank"));
 		 preview->clear();
-
-		 filmwebSearch->queryChanged(tokens);
 	 }
 }
 
@@ -182,6 +177,12 @@ void MainWindow::resultsSelectionChanged(const QModelIndex & current, const QMod
 
 		this->preview->setText(newname);
 	}
+}
+
+void MainWindow::onQueryChange(QStringList words)
+{
+	filmwebSearch->queryChanged(words);
+	resultsModel->clear();
 }
 
 void MainWindow::rename()

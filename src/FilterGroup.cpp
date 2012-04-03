@@ -3,6 +3,13 @@
 
 #include <QDebug>
 
+/*
+ * TODO:
+ *
+ * Halt ongoing queries before emitting next signal (now it looks like some kind of buggy queue)
+ *
+ */
+
 FilterGroup::FilterGroup(QWidget *parent)
 	: QScrollArea(parent), m_Pos(0)
 {
@@ -27,12 +34,15 @@ void FilterGroup::makeList(QStringList list)
 	{
 		append(s);
 	}
+
+	onFilterStateChanged();
 }
 
 void FilterGroup::append(QString text)
 {
 	Filter* filter = new Filter(text, contents);
 	m_Filters.append(filter);
+
 	QRect rect = filter->geometry();
 	rect.moveLeft(m_Pos);
 	filter->setGeometry(rect);
@@ -40,13 +50,32 @@ void FilterGroup::append(QString text)
 	filter->show();
 
 	contents->adjustSize();
+
+	connect(filter, SIGNAL(stateChanged()), this, SLOT(onFilterStateChanged()));
 }
 
 void FilterGroup::clear()
 {
 	m_Pos = 0;
 
-	qDeleteAll(m_Filters);
+	foreach (Filter* f, m_Filters)
+	{
+		disconnect(f, 0, this, 0);
+		delete f;
+	}
 
 	m_Filters.clear();
+}
+
+void FilterGroup::onFilterStateChanged()
+{
+	QStringList list;
+
+	foreach (Filter* f, m_Filters)
+	{
+		if (f->getState() == Filter::SEARCH)
+			list.append(f->text());
+	}
+
+	emit queryChanged(list);
 }

@@ -39,6 +39,7 @@ class ResultsListViewDelegate;
  	 void queryFinished(bool ok);
  	void resultsSelectionChanged(const QModelIndex & current, const QModelIndex & previous);
  	void rename();
+ 	void onQueryChange(QStringList words);
 
 public slots:
 	//void change_query(QString newquery);

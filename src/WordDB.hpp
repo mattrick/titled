@@ -2,6 +2,8 @@
 
 #include <sqlite3x/SQLite3x.hpp>
 
+#include <QString>
+
 class WordDB
 {
 protected:
@@ -13,9 +15,9 @@ public:
 		Black,
 		White
 	};
-	void List(std::string word, Type type);
-	void Remove(std::string word);
-	Type Check(std::string word);
+	void List(QString word, Type type);
+	void Remove(QString word);
+	Type Check(QString word);
 
 	WordDB();
 	~WordDB();
