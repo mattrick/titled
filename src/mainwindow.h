@@ -16,6 +16,7 @@ class FilterGroup;
 class FilmwebSearch;
 class ResultsModel;
 class CollectionListViewDelegate;
+class ResultsListViewDelegate;
 
  class MainWindow : public QMainWindow
  {
@@ -56,6 +57,7 @@ signals:
 
 	    QLabel *resultsLabel;
 	    QListView *resultsListView;
+	    ResultsListViewDelegate *resultsListViewDelegate;
 		ResultsModel* resultsModel;
 		FilmwebSearch* filmwebSearch;
 

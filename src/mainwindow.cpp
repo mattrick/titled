@@ -19,6 +19,7 @@
 #include "ResultsModel.hpp"
 #include "ResultsItem.hpp"
 #include "CollectionListViewDelegate.hpp"
+#include "ResultsListViewDelegate.hpp"
 
 MainWindow::MainWindow()
 {
@@ -93,6 +94,9 @@ void MainWindow::setupResults()
     resultsListView->setObjectName(QString::fromUtf8("resultsListView"));
     resultsListView->setGeometry(QRect(0, 340, 301, 161));
     resultsListView->setModel(resultsModel);
+
+    resultsListViewDelegate = new ResultsListViewDelegate();
+    resultsListView->setItemDelegate(resultsListViewDelegate);
 
     resultsListView->setCurrentIndex(QModelIndex());
 
