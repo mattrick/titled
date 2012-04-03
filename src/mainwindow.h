@@ -15,6 +15,7 @@ class CollectionModel;
 class FilterGroup;
 class FilmwebSearch;
 class ResultsModel;
+class CollectionListViewDelegate;
 
  class MainWindow : public QMainWindow
  {
@@ -50,6 +51,7 @@ signals:
 
 		CollectionModel *collectionModel;
 		QListView *collectionListView;
+		CollectionListViewDelegate *collectionListViewDelegate;
 		QLabel *collectionLabel;
 
 	    QLabel *resultsLabel;

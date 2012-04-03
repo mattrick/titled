@@ -18,6 +18,7 @@
 #include "FilmwebSearch.hpp"
 #include "ResultsModel.hpp"
 #include "ResultsItem.hpp"
+#include "CollectionListViewDelegate.hpp"
 
 MainWindow::MainWindow()
 {
@@ -72,6 +73,9 @@ void MainWindow::setupCollection()
 	collectionListView->setObjectName(QString::fromUtf8("collectionListView"));
 	collectionListView->setGeometry(QRect(0, 20, 300, 300));
 	collectionListView->setModel(collectionModel);
+
+	collectionListViewDelegate = new CollectionListViewDelegate();
+	collectionListView->setItemDelegate(collectionListViewDelegate);
 
 	collectionListView->setCurrentIndex(QModelIndex());
 }
