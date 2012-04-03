@@ -39,5 +39,5 @@ void FilterGroup::update(Action action, QString text)
 			tokens.append(f->text());
 	}
 
-	emit queryChanged(tokens.join("+"));
+	emit queryChanged(tokens);
 }

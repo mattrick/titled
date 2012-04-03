@@ -143,6 +143,7 @@ void MainWindow::setupConnects()
 	connect(collectionListView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(collectionSelectionChanged(const QModelIndex &, const QModelIndex &)));
 	connect(filmwebSearch, SIGNAL(queryFinished(bool)), this, SLOT(queryFinished(bool)));
 	connect(filmwebSearch, SIGNAL(noResults()), resultsModel, SLOT(printEmpty()));
+	connect(group, SIGNAL(queryChanged(QStringList)), filmwebSearch, SLOT(queryChanged(QStringList)));
 	connect(resultsListView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(resultsSelectionChanged(const QModelIndex &, const QModelIndex &)));
 }
 
@@ -160,12 +161,17 @@ void MainWindow::collectionSelectionChanged(const QModelIndex & current, const Q
 
 		 emit refresh_group(tokens);
 
+		 preview->clear();
+
+		 resultsListView->selectionModel()->clearSelection();
+
 		 filmwebSearch->queryChanged(tokens);
 	 }
 }
 
 void MainWindow::queryFinished(bool ok)
 {
+	qDebug() << "finisz";
 	collectionListView->setEnabled(true);
 
 	if (!ok)
