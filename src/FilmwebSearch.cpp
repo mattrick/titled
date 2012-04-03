@@ -23,6 +23,9 @@ FilmwebSearch::FilmwebSearch(ResultsModel* model, QObject * parent)
 	cookies.append(cookie);
 
 	networkAccessManager()->cookieJar()->setCookiesFromUrl(cookies, QUrl("https://www.filmweb.pl"));
+
+	timeout = new QTimer();
+	connect(timeout, SIGNAL(timeout()), action(Stop), SLOT(trigger()));
 }
 
 void FilmwebSearch::queryChanged(QStringList tokens)
@@ -35,13 +38,13 @@ void FilmwebSearch::queryChanged(QStringList tokens)
 
 	mainFrame()->load(queryUrl);
 
-	//set timeout
-	QAction* stopAction = action(Stop);
-	QTimer::singleShot(5000, stopAction, SLOT(trigger()));
+	timeout->start(5000);
 }
 
 void FilmwebSearch::queryLoadFinished(bool ok)
 {
+	timeout->stop();
+
 	if (ok)
 	{
 		QWebElement document = mainFrame()->documentElement();

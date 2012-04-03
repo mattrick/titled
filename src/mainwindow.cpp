@@ -43,23 +43,7 @@ void MainWindow::setup()
 	setupCollection();
 	setupResults();
 	setupBrowser();
-
-	group = new FilterGroup(0, 600, this);
-
-	connect(this, SIGNAL(refresh_group(QStringList)), group, SLOT(make(QStringList)));
-
-	//connect(group, SIGNAL(queryChanged(QString)), this, SLOT(change_query(QString)));
-
-
-
-	//setupFilters();
-
-		//collectionListView->selectionModel()->setObjectName("SelectionModel");
-
-
-
-		//connect(collectionListView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(item_changed(const QModelIndex &, const QModelIndex &)));
-		//connect(resultsListView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(result_changed_item(const QModelIndex &, const QModelIndex &)));
+	setupFilters();
 
 		preview = new QLineEdit(centralWidget);
 		        preview->setObjectName(QString::fromUtf8("preview"));
@@ -71,9 +55,6 @@ void MainWindow::setup()
 		       save->setText("Apply");
 
 		connect(save, SIGNAL(clicked(bool)), this, SLOT(rename()));
-
-		//temp
-		//connect(filmwebSearch, SIGNAL(queryFinished()), this, SLOT(loading_finished()));
 
 	setupConnects();
 }
@@ -92,6 +73,8 @@ void MainWindow::setupCollection()
 	collectionListView->setObjectName(QString::fromUtf8("collectionListView"));
 	collectionListView->setGeometry(QRect(0, 20, 300, 300));
 	collectionListView->setModel(collectionModel);
+
+	collectionListView->setCurrentIndex(QModelIndex());
 }
 
 void MainWindow::setupResults()
@@ -107,6 +90,8 @@ void MainWindow::setupResults()
     resultsListView->setObjectName(QString::fromUtf8("resultsListView"));
     resultsListView->setGeometry(QRect(0, 340, 301, 161));
     resultsListView->setModel(resultsModel);
+
+    resultsListView->setCurrentIndex(QModelIndex());
 
     filmwebSearch = new FilmwebSearch(resultsModel);
 }
@@ -126,16 +111,6 @@ void MainWindow::setupBrowser()
 
 void MainWindow::setupFilters()
 {
-	scrollArea = new QScrollArea(centralWidget);
-	        scrollArea->setObjectName(QString::fromUtf8("scrollArea"));
-	        scrollArea->setGeometry(QRect(0, 524, 661, 71));
-	        //scrollArea->setFrameShape(QFrame::NoFrame);
-	        scrollArea->setWidgetResizable(true);
-	        scrollAreaWidgetContents = new QWidget();
-	        scrollAreaWidgetContents->setObjectName(QString::fromUtf8("scrollAreaWidgetContents"));
-	        scrollAreaWidgetContents->setGeometry(QRect(0, 0, 661, 71));
-
-	        scrollArea->setWidget(scrollAreaWidgetContents);
 }
 
 void MainWindow::setupConnects()
@@ -143,7 +118,7 @@ void MainWindow::setupConnects()
 	connect(collectionListView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(collectionSelectionChanged(const QModelIndex &, const QModelIndex &)));
 	connect(filmwebSearch, SIGNAL(queryFinished(bool)), this, SLOT(queryFinished(bool)));
 	connect(filmwebSearch, SIGNAL(noResults()), resultsModel, SLOT(printEmpty()));
-	connect(group, SIGNAL(queryChanged(QStringList)), filmwebSearch, SLOT(queryChanged(QStringList)));
+	//connect(group, SIGNAL(queryChanged(QStringList)), filmwebSearch, SLOT(queryChanged(QStringList)));
 	connect(resultsListView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(resultsSelectionChanged(const QModelIndex &, const QModelIndex &)));
 }
 
@@ -161,9 +136,8 @@ void MainWindow::collectionSelectionChanged(const QModelIndex & current, const Q
 
 		 emit refresh_group(tokens);
 
+		 filmwebWebView->load(QUrl("about:blank"));
 		 preview->clear();
-
-		 resultsListView->selectionModel()->clearSelection();
 
 		 filmwebSearch->queryChanged(tokens);
 	 }
@@ -171,7 +145,8 @@ void MainWindow::collectionSelectionChanged(const QModelIndex & current, const Q
 
 void MainWindow::queryFinished(bool ok)
 {
-	qDebug() << "finisz";
+	resultsListView->setCurrentIndex(QModelIndex());
+
 	collectionListView->setEnabled(true);
 
 	if (!ok)
@@ -180,12 +155,15 @@ void MainWindow::queryFinished(bool ok)
 
 void MainWindow::resultsSelectionChanged(const QModelIndex & current, const QModelIndex & previous)
 {
-	this->filmwebWebView->load(resultsModel->data(current, ResultsItem::URLRole).toString());
+	if (current.isValid())
+	{
+		this->filmwebWebView->load(resultsModel->data(current, ResultsItem::URLRole).toString());
 
-	QString newname = resultsModel->data(current, ResultsItem::TitleRole).toString();
-	newname += " (" + resultsModel->data(current, ResultsItem::YearRole).toString() + ")";
+		QString newname = resultsModel->data(current, ResultsItem::TitleRole).toString();
+		newname += " (" + resultsModel->data(current, ResultsItem::YearRole).toString() + ")";
 
-	this->preview->setText(newname);
+		this->preview->setText(newname);
+	}
 }
 
 void MainWindow::rename()

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QWebPage>
+#include <QTimer>
 
 class ResultsModel;
 class ResultsItem;
@@ -11,6 +12,7 @@ class FilmwebSearch : public QWebPage
 
 	private:
 		ResultsModel* resultsModel;
+		QTimer* timeout;
 
 	public:
 		FilmwebSearch(ResultsModel* model, QObject * parent = 0);

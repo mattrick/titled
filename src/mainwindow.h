@@ -55,21 +55,14 @@ signals:
 	    QLabel *resultsLabel;
 	    QListView *resultsListView;
 		ResultsModel* resultsModel;
+		FilmwebSearch* filmwebSearch;
 
 		QLabel *filmwebLabel;
 		QWebView *filmwebWebView;
 
-		FilmwebSearch* filmwebSearch;
+		//FilterGroup* filterGroup;
 
  	QLineEdit *preview;
  	QPushButton *save;
-
- 	FilterGroup* group;
-
-
-
-
-	QScrollArea *scrollArea;
-	QWidget *scrollAreaWidgetContents;
 
  };
