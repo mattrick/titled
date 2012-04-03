@@ -1,0 +1,9 @@
+ <!DOCTYPE RCC><RCC version="1.0">
+ <qresource>
+     <file>images/add.png</file>
+     <file>images/include.png</file>
+     <file>images/remove.png</file>
+     <file>images/exclude.png</file>
+     <file>images/search.png</file>
+ </qresource>
+ </RCC>
