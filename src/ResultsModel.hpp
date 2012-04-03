@@ -5,6 +5,7 @@
 #include <QStringList>
 
 class ResultsItem;
+class FilmwebSearch;
 
 class ResultsModel : public QAbstractListModel
 {
@@ -20,7 +21,7 @@ class ResultsModel : public QAbstractListModel
 
 		//void handleItemChange();
 
-		ResultsItem* find(const QString &hash) const;
+		//ResultsItem* find(const QString &hash) const;
 		QModelIndex indexFromItem(const ResultsItem *item) const;
 
 		void clear();
@@ -28,8 +29,6 @@ class ResultsModel : public QAbstractListModel
 		bool removeRow(int row, const QModelIndex &parent);
 		bool removeRows(int row, int count, const QModelIndex &parent);
 		ResultsItem* takeRow(int row);
-
-		void UpdateList();
 
 	protected:
 
@@ -41,6 +40,9 @@ class ResultsModel : public QAbstractListModel
 		QVariant data(const QModelIndex &index, int role) const;
 
 	public slots:
-		void Update();
+		void printError();
+		void printEmpty();
+
+		friend class FilmwebSearch;
 };
 

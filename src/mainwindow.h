@@ -14,6 +14,7 @@ class QListViewItem;
 class CollectionModel;
 class FilterGroup;
 class FilmwebSearch;
+class ResultsModel;
 
  class MainWindow : public QMainWindow
  {
@@ -27,17 +28,18 @@ class FilmwebSearch;
      void setup();
      void setupCollection();
      void setupResults();
-     void setupFilters();
      void setupBrowser();
+     void setupFilters();
+     void setupConnects();
 
  private slots:
- 	 void item_changed(const QModelIndex & current, const QModelIndex & previous);
- 	 void loading_finished();
- 	void result_changed_item(const QModelIndex & current, const QModelIndex & previous);
+ 	 void collectionSelectionChanged(const QModelIndex & current, const QModelIndex & previous);
+ 	 void queryFinished(bool ok);
+ 	void resultsSelectionChanged(const QModelIndex & current, const QModelIndex & previous);
  	void rename();
 
 public slots:
-	void change_query(QString newquery);
+	//void change_query(QString newquery);
 
 
 signals:
@@ -52,7 +54,7 @@ signals:
 
 	    QLabel *resultsLabel;
 	    QListView *resultsListView;
-		QStringListModel* resultsModel;
+		ResultsModel* resultsModel;
 
 		QLabel *filmwebLabel;
 		QWebView *filmwebWebView;

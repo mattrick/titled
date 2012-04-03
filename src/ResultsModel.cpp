@@ -8,19 +8,6 @@ ResultsModel::ResultsModel(ResultsItem* prototype, QObject *parent) :
 QAbstractListModel(parent)
 {
 	setRoleNames(prototype->roleNames());
-
-	m_Results = new Results();
-}
-
-void ResultsModel::Update()
-{
-	m_Results->Update();
-
-	clear();
-
-	m_Results->List([this](QString name, QString path, QString hash){
-		this->appendRow(new ResultsItem(name, path, hash));
-	});
 }
 
 int ResultsModel::rowCount(const QModelIndex &parent) const
@@ -75,7 +62,7 @@ void ResultsModel::insertRow(int row, ResultsItem *item)
 		emit dataChanged(index, index);
 }*/
 
-ResultsItem * ResultsModel::find(const QString &hash) const
+/*ResultsItem * ResultsModel::find(const QString &hash) const
 {
 	foreach (ResultsItem* item, m_List)
 	{
@@ -84,7 +71,7 @@ ResultsItem * ResultsModel::find(const QString &hash) const
 	}
 
 	return 0;
-}
+}*/
 
 QModelIndex ResultsModel::indexFromItem(const ResultsItem *item) const
 {
@@ -143,4 +130,18 @@ ResultsItem* ResultsModel::takeRow(int row)
 	endRemoveRows();
 
 	return item;
+}
+
+void ResultsModel::printError()
+{
+	clear();
+
+	appendRow(new ResultsItem("Error fetching search results: timeout", "", "", ""));
+}
+
+void ResultsModel::printEmpty()
+{
+	clear();
+
+	appendRow(new ResultsItem("No matching titles, change your query", "", "", ""));
 }
