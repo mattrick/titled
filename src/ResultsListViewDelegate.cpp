@@ -1,8 +1,12 @@
 #include "ResultsListViewDelegate.hpp"
 
+#include "ResultsItem.hpp"
+
 #include <QFont>
 #include <QApplication>
 #include <QPainter>
+
+#include <QDebug>
 
 ResultsListViewDelegate::ResultsListViewDelegate()
 {
@@ -17,8 +21,7 @@ QSize ResultsListViewDelegate::sizeHint(const QStyleOptionViewItem &option, cons
     QFont font = QApplication::font();
     QFontMetrics fm(font);
 
-    return(QSize(0 , fm.height()));
-
+    return(QSize(0 , fm.height() + 50));
 }
 
 void ResultsListViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
@@ -27,6 +30,8 @@ void ResultsListViewDelegate::paint(QPainter *painter, const QStyleOptionViewIte
 
 	if (option.state & QStyle::State_Selected)
 	             painter->fillRect(option.rect, option.palette.highlight());
+
+
 
 	/*QBrush backBrush;
 	    QColor foreColor;
@@ -62,11 +67,13 @@ void ResultsListViewDelegate::paint(QPainter *painter, const QStyleOptionViewIte
        break;
        }*/
 
-    /*QFont font = QApplication::font();
+    QFont font = QApplication::font();
         //font.setPixelSize(font.weight()+);
         QFontMetrics fm(font);
 
-        QString headerText = qvariant_cast<QString>(index.data(headerTextRole));
+        QString headerText = qvariant_cast<QString>(index.data(ResultsItem::TitleRole));
+
+        qDebug() << headerText;
 
         QRect headerRect = option.rect;
 
@@ -77,7 +84,7 @@ void ResultsListViewDelegate::paint(QPainter *painter, const QStyleOptionViewIte
         //painter->drawPixmap(QPoint(iconRect.right()/2,iconRect.top()/2),icon.pixmap(iconsize.width(),iconsize.height()));
 
         painter->setFont(font);
-        painter->drawText(headerRect,headerText);*/
+        painter->drawText(headerRect,headerText);
 
     painter->restore();
 

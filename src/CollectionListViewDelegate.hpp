@@ -10,8 +10,6 @@ class CollectionListViewDelegate : public QStyledItemDelegate
 		CollectionListViewDelegate();
 		virtual ~CollectionListViewDelegate();
 
-		enum datarole {headerTextRole = Qt::UserRole + 100};
-
 		void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 		QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index ) const;
 };
