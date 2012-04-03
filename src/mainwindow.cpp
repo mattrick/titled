@@ -32,7 +32,6 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::setup()
 {
-	this->setObjectName("okno");
 	this->resize(1024, 768);
 
 	centralWidget = new QWidget(this);
@@ -67,7 +66,7 @@ void MainWindow::setupCollection()
 	collectionLabel = new QLabel(centralWidget);
 	collectionLabel->setObjectName(QString::fromUtf8("collectionLabel"));
 	collectionLabel->setGeometry(QRect(0, 0, 251, 16));
-	collectionLabel->setText("Lokalna kolekcja");
+	collectionLabel->setText(tr("Local collection"));
 
 	collectionListView = new QListView(centralWidget);
 	collectionListView->setObjectName(QString::fromUtf8("collectionListView"));
@@ -84,7 +83,7 @@ void MainWindow::setupResults()
     resultsLabel = new QLabel(centralWidget);
     resultsLabel->setObjectName(QString::fromUtf8("resultsLabel"));
     resultsLabel->setGeometry(QRect(0, 320, 301, 16));
-    resultsLabel->setText("Wyniki wyszukiwania");
+    resultsLabel->setText(tr("Search results"));
 
     resultsListView = new QListView(centralWidget);
     resultsListView->setObjectName(QString::fromUtf8("resultsListView"));
@@ -101,7 +100,7 @@ void MainWindow::setupBrowser()
 	filmwebLabel = new QLabel(centralWidget);
 	filmwebLabel->setObjectName(QString::fromUtf8("filmwebLabel"));
 	filmwebLabel->setGeometry(QRect(310, 0, 721, 16));
-	filmwebLabel->setText("Podgląd na filmwebie");
+	filmwebLabel->setText(tr("Preview on filmweb"));
 
 	filmwebWebView = new QWebView(centralWidget);
 	filmwebWebView->setObjectName(QString::fromUtf8("filmwebWebView"));

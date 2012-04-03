@@ -136,12 +136,12 @@ void ResultsModel::printError()
 {
 	clear();
 
-	appendRow(new ResultsItem("Error fetching search results: timeout", "", "", ""));
+	appendRow(new ResultsItem(tr("Error fetching search results: timeout"), "", "", ""));
 }
 
 void ResultsModel::printEmpty()
 {
 	clear();
 
-	appendRow(new ResultsItem("No matching titles, change your query", "", "", ""));
+	appendRow(new ResultsItem(tr("No matching titles, change your query"), "", "", ""));
 }
