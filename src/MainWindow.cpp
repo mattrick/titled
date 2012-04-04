@@ -18,6 +18,8 @@
 #include "FilmwebSearch.hpp"
 #include "ResultsModel.hpp"
 #include "ResultsItem.hpp"
+#include "CollectionListViewDelegate.hpp"
+#include "ResultsListViewDelegate.hpp"
 #include "FilterGroup.hpp"
 #include "Filter.hpp"
 
@@ -80,6 +82,9 @@ void MainWindow::setupCollection()
 	collectionListView->setGeometry(QRect(0, 20, 300, 300));
 	collectionListView->setModel(collectionModel);
 
+	collectionListViewDelegate = new CollectionListViewDelegate();
+	collectionListView->setItemDelegate(collectionListViewDelegate);
+
 	collectionListView->setCurrentIndex(QModelIndex());
 }
 
@@ -96,6 +101,9 @@ void MainWindow::setupResults()
     resultsListView->setObjectName(QString::fromUtf8("resultsListView"));
     resultsListView->setGeometry(QRect(0, 340, 301, 161));
     resultsListView->setModel(resultsModel);
+
+    resultsListViewDelegate = new ResultsListViewDelegate();
+    resultsListView->setItemDelegate(resultsListViewDelegate);
 
     resultsListView->setCurrentIndex(QModelIndex());
 
