@@ -87,7 +87,7 @@ void Collection::Scan()
 		{
 			directory_walker.next();
 
-			QRegExp regexp("(3g2|3gp|asf|asx|avi|flv|mov|mp4|mpg|rm|swf|vob|wmv|mkv|rmvb)");
+			QRegExp regexp("(3g2|3gp|asf|asx|avi|flv|mov|mp4|mpg|rm|swf|vob|wmv|mkv|rmvb)", Qt::CaseInsensitive);
 
 			if (regexp.exactMatch(directory_walker.fileInfo().completeSuffix()))
 			{
