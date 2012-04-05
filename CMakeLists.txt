@@ -10,13 +10,6 @@ set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${titled_SOURCE_DIR}/cmake/Modules/
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
 #
 
-# Boost package
-# for Xpressive we don't need any .lib files, so REQUIRED COMPONENTS list is empty
-find_package (Boost)
-include_directories (${Boost_INCLUDE_DIRS})
-add_definitions (-DBOOST_ALL_NO_LIB)
-#
-
 # SQLite3x package
 find_package (SQLite3x)
 include_directories (${SQLite3x_INCLUDE_DIRS})

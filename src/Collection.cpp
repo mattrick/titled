@@ -4,10 +4,7 @@
 #include <QCryptographicHash>
 #include <QFile>
 #include <QDirIterator>
-
-#include <boost/xpressive/xpressive.hpp>
-using namespace boost::xpressive;
-
+#include <QRegExp>
 
 Collection::Collection()
 {
@@ -62,9 +59,7 @@ void Collection::Check()
 		QFileInfo info(file);
 
 		if (!info.exists())
-		{
 			m_DB->Query("DELETE FROM movies where hash=?")->Bind(hash.toStdString())->Execute();
-		}
 		else
 		{
 			if (GetHash(path) != hash)
@@ -84,40 +79,35 @@ void Collection::Check()
 
 void Collection::Scan()
 {
-	QSettings settings;
 	foreach (QString path, m_Paths)
 	{
 		QDirIterator directory_walker(path, QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
 
 		while(directory_walker.hasNext())
 		{
-			  // then we tell our directory_walker object to explicitly take next element until the loop finishes
-			  directory_walker.next();
+			directory_walker.next();
 
-			  sregex extension_check = sregex::compile("(3g2|3gp|asf|asx|avi|flv|mov|mp4|mpg|rm|swf|vob|wmv|mkv|rmvb)");
-			 // I want to list just mp3 files!
-			 if(regex_match(directory_walker.fileInfo().completeSuffix().toStdString(), extension_check))
-			 {		 // then we take a filename and display it to a listWidget like the code below:
+			QRegExp regexp("(3g2|3gp|asf|asx|avi|flv|mov|mp4|mpg|rm|swf|vob|wmv|mkv|rmvb)");
 
-				 QFileInfo info = directory_walker.fileInfo();
+			if (regexp.exactMatch(directory_walker.fileInfo().completeSuffix()))
+			{
+				QFileInfo info = directory_walker.fileInfo();
 
-				 try
-					{
-					 	 bool found = false;
-						m_DB->Query("SELECT * FROM movies WHERE hash=?;")->Bind(GetHash(info.absoluteFilePath()).toStdString())->Execute([&found](){
-							found = true;
-						});
+				try
+				{
+					bool found = false;
+					m_DB->Query("SELECT * FROM movies WHERE hash=?;")->Bind(GetHash(info.absoluteFilePath()).toStdString())->Execute([&found](){
+					found = true;
+					});
 
-						if (!found)
-						{
-							m_DB->Query("INSERT INTO movies VALUES (?, ?, ?);")->Bind(info.baseName().toUtf8().constData(), info.absoluteFilePath().toUtf8().constData(), GetHash(info.absoluteFilePath()).toStdString())->Execute();
-						}
-					}
-					catch(const char* err)
-					{
-						std::cerr << err;
-					}
-			 }
+					if (!found)
+						m_DB->Query("INSERT INTO movies VALUES (?, ?, ?);")->Bind(info.baseName().toUtf8().constData(), info.absoluteFilePath().toUtf8().constData(), GetHash(info.absoluteFilePath()).toStdString())->Execute();
+				}
+				catch(const char* err)
+				{
+					std::cerr << err;
+				}
+			}
 		}
 	}
 }
