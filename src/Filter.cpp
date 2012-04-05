@@ -1,5 +1,4 @@
 #include "Filter.hpp"
-#include "WordDB.hpp"
 
 #include <QLineEdit>
 #include <QVBoxLayout>
@@ -7,7 +6,7 @@
 #include <QApplication>
 
 #include "ClickableImage.hpp"
-#include <QDebug>
+#include "WordDB.hpp"
 
 Filter::Filter(QString text, QWidget* parent)
 	: QWidget(parent), m_State(SEARCH)

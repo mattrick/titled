@@ -2,7 +2,6 @@
 
 #include <QtGui>
 #include <QString>
-#include <QDebug>
 #include <QUrl>
 #include <QWebFrame>
 #include <QWebPage>
@@ -111,6 +110,13 @@ void MainWindow::setupBrowser()
 	filmwebWebView->setObjectName(QString::fromUtf8("filmwebWebView"));
 	filmwebWebView->setGeometry(QRect(310, 20, 714, 570));
 	filmwebWebView->setUrl(QUrl("about:blank"));
+
+	QList<QNetworkCookie> cookies;
+
+	QNetworkCookie cookie(QByteArray("welcomeScreen"),QByteArray("welcome_screen"));
+	cookies.append(cookie);
+
+	filmwebWebView->page()->networkAccessManager()->cookieJar()->setCookiesFromUrl(cookies, QUrl("http://www.filmweb.pl"));
 }
 
 void MainWindow::setupFilters()

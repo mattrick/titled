@@ -5,8 +5,6 @@
 #include <QFile>
 #include <QDirIterator>
 
-#include <QDebug>
-
 #include <boost/xpressive/xpressive.hpp>
 using namespace boost::xpressive;
 

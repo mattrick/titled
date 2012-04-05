@@ -4,13 +4,11 @@
 #include <QWebElement>
 #include <QWebElementCollection>
 #include <QNetworkCookie>
+#include <QTimer>
+#include <QAction>
 
 #include "ResultsModel.hpp"
 #include "ResultsItem.hpp"
-
-#include <QDebug>
-#include <QTimer>
-#include <QAction>
 
 FilmwebSearch::FilmwebSearch(ResultsModel* model, QObject * parent)
 	: resultsModel(model), QWebPage(parent)
@@ -22,7 +20,7 @@ FilmwebSearch::FilmwebSearch(ResultsModel* model, QObject * parent)
 	QNetworkCookie cookie(QByteArray("welcomeScreen"),QByteArray("welcome_screen"));
 	cookies.append(cookie);
 
-	networkAccessManager()->cookieJar()->setCookiesFromUrl(cookies, QUrl("https://www.filmweb.pl"));
+	networkAccessManager()->cookieJar()->setCookiesFromUrl(cookies, QUrl("http://www.filmweb.pl"));
 
 	timeout = new QTimer();
 	connect(timeout, SIGNAL(timeout()), action(Stop), SLOT(trigger()));

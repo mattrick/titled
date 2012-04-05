@@ -1,7 +1,6 @@
 #include "FilterGroup.hpp"
-#include "Filter.hpp"
 
-#include <QDebug>
+#include "Filter.hpp"
 
 /*
  * TODO:

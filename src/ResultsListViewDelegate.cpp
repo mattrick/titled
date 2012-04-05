@@ -1,13 +1,11 @@
 #include "ResultsListViewDelegate.hpp"
 
-#include "ResultsItem.hpp"
-
 #include <QFont>
 #include <QApplication>
 #include <QPainter>
 #include <QTextOption>
 
-#include <QDebug>
+#include "ResultsItem.hpp"
 
 ResultsListViewDelegate::ResultsListViewDelegate()
 {
