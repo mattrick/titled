@@ -91,8 +91,10 @@ void MainWindow::setupResults()
     resultsListView->setGeometry(QRect(0, 340, 300, 250));
     resultsListView->setModel(resultsModel);
 
-    resultsListViewDelegate = new ResultsListViewDelegate();
+    resultsListViewDelegate = new ResultsListViewDelegate(resultsListView);
     resultsListView->setItemDelegate(resultsListViewDelegate);
+
+    connect(resultsListView->horizontalScrollBar(), SIGNAL(valueChanged(int)), resultsListView->viewport(), SLOT(repaint()));
 
     resultsListView->setCurrentIndex(QModelIndex());
 
