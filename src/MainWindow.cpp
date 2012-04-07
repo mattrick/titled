@@ -10,6 +10,7 @@
 #include <QNetworkCookie>
 #include <QLabel>
 #include <QFile>
+#include <QApplication>
 
 #include "MainWindow.hpp"
 #include "CollectionModel.hpp"
@@ -47,6 +48,7 @@ void MainWindow::setup()
 
 	this->setCentralWidget(centralWidget);
 
+	setupMenuBar();
 	setupCollection();
 	setupResults();
 	setupBrowser();
@@ -54,6 +56,15 @@ void MainWindow::setup()
 	setupPreview();
 
 	setupConnects();
+}
+
+void MainWindow::setupMenuBar()
+{
+	fileMenu = menuBar()->addMenu(tr("&File"));
+	exitAction = fileMenu->addAction(tr("E&xit"));
+
+	editMenu = menuBar()->addMenu(tr("&Edit"));
+	settingsAction = editMenu->addAction(tr("&Settings"));
 }
 
 void MainWindow::setupCollection()
@@ -124,18 +135,18 @@ void MainWindow::setupBrowser()
 void MainWindow::setupFilters()
 {
 	filterGroup = new FilterGroup(centralWidget);
-	filterGroup->setGeometry(QRect(0, 640, 1024, 100));
+	filterGroup->setGeometry(QRect(0, 620, 1024, 100));
 }
 
 void MainWindow::setupPreview()
 {
 	previewEdit = new QLineEdit(centralWidget);
 	previewEdit->setObjectName(QString::fromUtf8("previewEdit"));
-	previewEdit->setGeometry(QRect(0, 748, 924, 20));
+	previewEdit->setGeometry(QRect(0, 728, 924, 20));
 
 	saveButton = new QPushButton(centralWidget);
 	saveButton->setObjectName(QString::fromUtf8("saveButton"));
-	saveButton->setGeometry(QRect(924, 748, 100, 20));
+	saveButton->setGeometry(QRect(924, 728, 100, 20));
 	saveButton->setText(tr("Rename"));
 }
 
@@ -147,6 +158,8 @@ void MainWindow::setupConnects()
 	connect(filterGroup, SIGNAL(queryChanged(QStringList)), this, SLOT(onQueryChange(QStringList)));
 	connect(resultsListView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(resultsSelectionChanged(const QModelIndex &, const QModelIndex &)));
 	connect(saveButton, SIGNAL(clicked(bool)), this, SLOT(rename()));
+
+	connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
 }
 
 void MainWindow::collectionSelectionChanged(const QModelIndex & current, const QModelIndex & previous)
