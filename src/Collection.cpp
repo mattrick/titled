@@ -30,8 +30,14 @@ Collection::~Collection()
 
 void Collection::Update()
 {
-	m_DB->Exec("CREATE TABLE IF NOT EXISTS %s (%s TEXT, %s TEXT, %s VARCHAR(32));", "movies", "name", "path", "hash");
-
+	try
+	{
+		m_DB->Exec("CREATE TABLE IF NOT EXISTS movies (name TEXT, path TEXT, hash VARCHAR(32), size INTEGER);");
+	}
+	catch (std::string err)
+	{
+		std::cerr << err;
+	}
 	Check();
 
 	Scan();
@@ -54,7 +60,7 @@ QString GetHash(QString path)
 
 void Collection::Check()
 {
-	List([m_DB](QString name, QString path, QString hash){
+	List([m_DB](QString name, QString path, QString hash, qint64 size){
 		QFile file(path);
 		QFileInfo info(file);
 
@@ -66,9 +72,10 @@ void Collection::Check()
 			{
 				try
 				{
+					m_DB->Query("UPDATE movies SET size=? WHERE hash=?")->Bind(info.size(), hash.toStdString())->Execute();
 					m_DB->Query("UPDATE movies SET hash=? WHERE hash=?")->Bind(GetHash(path).toUtf8().constData(), hash.toStdString())->Execute();
 				}
-				catch (const char* err)
+				catch (std::string err)
 				{
 					std::cout << err;
 				}
@@ -101,9 +108,9 @@ void Collection::Scan()
 					});
 
 					if (!found)
-						m_DB->Query("INSERT INTO movies VALUES (?, ?, ?);")->Bind(info.baseName().toUtf8().constData(), info.absoluteFilePath().toUtf8().constData(), GetHash(info.absoluteFilePath()).toStdString())->Execute();
+						m_DB->Query("INSERT INTO movies VALUES (?, ?, ?, ?);")->Bind(info.baseName().toUtf8().constData(), info.absoluteFilePath().toUtf8().constData(), GetHash(info.absoluteFilePath()).toStdString(), info.size())->Execute();
 				}
-				catch(const char* err)
+				catch(std::string err)
 				{
 					std::cerr << err;
 				}
@@ -112,9 +119,9 @@ void Collection::Scan()
 	}
 }
 
-void Collection::List(std::function<void (QString, QString, QString)> func)
+void Collection::List(std::function<void (QString, QString, QString, qint64)> func)
 {
-	m_DB->Query("SELECT * FROM movies ORDER BY name")->Execute([&func](std::string name, std::string path, std::string hash){
-		func(QString::fromUtf8(name.c_str()), QString::fromUtf8(path.c_str()), QString::fromUtf8(hash.c_str()));
+	m_DB->Query("SELECT * FROM movies ORDER BY name")->Execute([&func](std::string name, std::string path, std::string hash, int64 size){
+		func(QString::fromUtf8(name.c_str()), QString::fromUtf8(path.c_str()), QString::fromUtf8(hash.c_str()), size);
 	});
 }

@@ -71,7 +71,7 @@ void MainWindow::setupCollection()
 	collectionListView->setGeometry(QRect(0, 20, 300, 300));
 	collectionListView->setModel(collectionModel);
 
-	collectionListViewDelegate = new CollectionListViewDelegate();
+	collectionListViewDelegate = new CollectionListViewDelegate(collectionListView);
 	collectionListView->setItemDelegate(collectionListViewDelegate);
 
 	collectionListView->setCurrentIndex(QModelIndex());

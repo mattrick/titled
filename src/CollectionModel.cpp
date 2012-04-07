@@ -25,8 +25,8 @@ void CollectionModel::Update()
 
 	clear();
 
-	m_Collection->List([this](QString name, QString path, QString hash){
-		this->appendRow(new CollectionItem(name, path, hash));
+	m_Collection->List([this](QString name, QString path, QString hash, qint64 size){
+		this->appendRow(new CollectionItem(name, path, hash, size));
 	});
 }
 

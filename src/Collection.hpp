@@ -23,5 +23,5 @@ class Collection
 		~Collection();
 
 		void Update();
-		void List(std::function<void (QString, QString, QString)> func);
+		void List(std::function<void (QString, QString, QString, qint64)> func);
 };
