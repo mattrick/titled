@@ -30,7 +30,8 @@ QSize CollectionListViewDelegate::trueSizeHint(const QStyleOptionViewItem &optio
     subFont.setPointSize(font.pointSize() - 2);
 
     QFontMetrics sfm(subFont);
-    QString subText = index.data(CollectionItem::SizeTextRole).toString();
+    QString subText = 	index.data(CollectionItem::SizeTextRole).toString() + " | " + \
+    					"subdir: " + index.data(CollectionItem::SubdirTextRole).toString();
 
     QSize hint;
 
@@ -79,7 +80,8 @@ void CollectionListViewDelegate::paint(QPainter *painter, const QStyleOptionView
 
 	QString headerText = index.data(CollectionItem::NameRole).toString();
 
-	QString subText = index.data(CollectionItem::SizeTextRole).toString();
+	QString subText = 	index.data(CollectionItem::SizeTextRole).toString() + " | " + \
+						"subdir: " + index.data(CollectionItem::SubdirTextRole).toString();
 
 	QSize trueSize(trueSizeHint(option, index));
 	QSize size(sizeHint(option, index));

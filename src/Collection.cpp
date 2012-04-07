@@ -32,13 +32,13 @@ void Collection::Update()
 {
 	try
 	{
-		m_DB->Exec("CREATE TABLE IF NOT EXISTS movies (name TEXT, path TEXT, hash VARCHAR(32), size INTEGER);");
+		m_DB->Exec("CREATE TABLE IF NOT EXISTS movies (name TEXT, path TEXT, hash VARCHAR(32), size INTEGER, subdir BOOLEAN);");
 	}
 	catch (std::string err)
 	{
 		std::cerr << err;
 	}
-	Check();
+	Clean();
 
 	Scan();
 }
@@ -58,57 +58,82 @@ QString GetHash(QString path)
 	return QString(crypto.result().toHex());
 }
 
-void Collection::Check()
+void Collection::Clean()
 {
-	List([m_DB](QString name, QString path, QString hash, qint64 size){
+	List([m_DB](QString name, QString path, QString hash, qint64 size, bool subdir){
 		QFile file(path);
 		QFileInfo info(file);
 
 		if (!info.exists())
 			m_DB->Query("DELETE FROM movies where hash=?")->Bind(hash.toStdString())->Execute();
-		else
-		{
-			if (GetHash(path) != hash)
-			{
-				try
-				{
-					m_DB->Query("UPDATE movies SET size=? WHERE hash=?")->Bind(info.size(), hash.toStdString())->Execute();
-					m_DB->Query("UPDATE movies SET hash=? WHERE hash=?")->Bind(GetHash(path).toUtf8().constData(), hash.toStdString())->Execute();
-				}
-				catch (std::string err)
-				{
-					std::cout << err;
-				}
-			}
-		}
 	});
 }
+
+#include <QDebug>
 
 void Collection::Scan()
 {
 	foreach (QString path, m_Paths)
 	{
-		QDirIterator directory_walker(path, QDir::Files | QDir::NoSymLinks, QDirIterator::Subdirectories);
+		/*
+		 * FIXME:
+		 *
+		 * Files are scanned twice cause of "." directory in each subdir
+		 *
+		 */
 
-		while(directory_walker.hasNext())
+		QDirIterator directories(path, QDir::Dirs | QDir::NoDotDot, QDirIterator::Subdirectories);
+
+		while(directories.hasNext())
 		{
-			directory_walker.next();
+			QStringList extensions;
+			extensions	<< "3g2" << "3gp" << "asf" << "asx" << "avi" << "flv" << "mov" << "mp4" \
+						<<"mpg" << "rm" << "swf" << "vob" << "wmv" << "mkv" << "rmvb";
 
-			QRegExp regexp("(3g2|3gp|asf|asx|avi|flv|mov|mp4|mpg|rm|swf|vob|wmv|mkv|rmvb)", Qt::CaseInsensitive);
+			extensions.replaceInStrings(QRegExp("^(.*)$"), "*.\\1");
 
-			if (regexp.exactMatch(directory_walker.fileInfo().completeSuffix()))
+			QStringList files = QDir(directories.next()).entryList(extensions, QDir::Files);
+
+			bool aloneInSubdir = true;
+
+			if (files.size() > 1)
+				aloneInSubdir = false;
+
+		/*
+		 * TODO:
+		 *
+		 * Checking for changes in hash/size/another files in subdir presence.
+		 *
+		 */
+
+			/*else
+					{
+						if (GetHash(path) != hash)
+						{
+							try
+							{
+								m_DB->Query("UPDATE movies SET size=? WHERE hash=?")->Bind(info.size(), hash.toStdString())->Execute();
+								m_DB->Query("UPDATE movies SET hash=? WHERE hash=?")->Bind(GetHash(path).toUtf8().constData(), hash.toStdString())->Execute();
+							}
+							catch (std::string err)
+							{
+								std::cout << err;
+							}
+						}
+					}*/
+			foreach (QString file, files)
 			{
-				QFileInfo info = directory_walker.fileInfo();
+				QFileInfo info(directories.filePath() + "/" + file);
 
 				try
 				{
 					bool found = false;
 					m_DB->Query("SELECT * FROM movies WHERE hash=?;")->Bind(GetHash(info.absoluteFilePath()).toStdString())->Execute([&found](){
-					found = true;
+						found = true;
 					});
 
 					if (!found)
-						m_DB->Query("INSERT INTO movies VALUES (?, ?, ?, ?);")->Bind(info.baseName().toUtf8().constData(), info.absoluteFilePath().toUtf8().constData(), GetHash(info.absoluteFilePath()).toStdString(), info.size())->Execute();
+						m_DB->Query("INSERT INTO movies VALUES (?, ?, ?, ?, ?);")->Bind(info.baseName().toUtf8().constData(), info.absoluteFilePath().toUtf8().constData(), GetHash(info.absoluteFilePath()).toStdString(), info.size(), aloneInSubdir)->Execute();
 				}
 				catch(std::string err)
 				{
@@ -119,9 +144,9 @@ void Collection::Scan()
 	}
 }
 
-void Collection::List(std::function<void (QString, QString, QString, qint64)> func)
+void Collection::List(std::function<void (QString, QString, QString, qint64, bool)> func)
 {
-	m_DB->Query("SELECT * FROM movies ORDER BY name")->Execute([&func](std::string name, std::string path, std::string hash, int64 size){
-		func(QString::fromUtf8(name.c_str()), QString::fromUtf8(path.c_str()), QString::fromUtf8(hash.c_str()), size);
+	m_DB->Query("SELECT * FROM movies ORDER BY name")->Execute([&func](std::string name, std::string path, std::string hash, int64 size, bool subdir){
+		func(QString::fromUtf8(name.c_str()), QString::fromUtf8(path.c_str()), QString::fromUtf8(hash.c_str()), size, subdir);
 	});
 }

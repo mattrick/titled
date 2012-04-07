@@ -50,8 +50,8 @@ CollectionItem::CollectionItem(QObject *parent)
 {
 }
 
-CollectionItem::CollectionItem(const QString &name, const QString &path, const QString &hash, qint64 &size, QObject *parent)
-	: m_Name(name), m_Path(path), m_Hash(hash), m_Size(size)
+CollectionItem::CollectionItem(const QString &name, const QString &path, const QString &hash, qint64 &size, bool subdir, QObject *parent)
+	: m_Name(name), m_Path(path), m_Hash(hash), m_Size(size), m_Subdir(subdir)
 {
 }
 
@@ -64,9 +64,13 @@ QHash<int, QByteArray> CollectionItem::roleNames() const
 	names[HashRole] = "hash";
 	names[SizeRole] = "size";
 	names[SizeTextRole] = "sizeText";
+	names[SubdirRole] = "subdir";
+	names[SubdirTextRole] = "subdirText";
 
 	return names;
 }
+
+#include <QDebug>
 
 QVariant CollectionItem::data(int role) const
 {
@@ -89,6 +93,12 @@ QVariant CollectionItem::data(int role) const
 
 		case SizeTextRole:
 			return sizeText();
+
+		case SubdirRole:
+			return subdir();
+
+		case SubdirTextRole:
+			return subdirText();
 
 		default:
 			return QVariant();

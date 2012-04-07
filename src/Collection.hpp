@@ -15,7 +15,7 @@ class Collection
 		SQLite3x::DB *m_DB;
 		QStringList m_Paths;
 
-		void Check();
+		void Clean();
 		void Scan();
 
 	public:
@@ -23,5 +23,5 @@ class Collection
 		~Collection();
 
 		void Update();
-		void List(std::function<void (QString, QString, QString, qint64)> func);
+		void List(std::function<void (QString, QString, QString, qint64, bool)> func);
 };
