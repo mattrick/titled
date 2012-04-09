@@ -45,5 +45,6 @@ class CollectionModel : public QAbstractListModel
 
 	public slots:
 		void Update();
+		void Rebuild();
 };
 

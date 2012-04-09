@@ -30,6 +30,13 @@ void CollectionModel::Update()
 	});
 }
 
+void CollectionModel::Rebuild()
+{
+	m_Collection->Rebuild();
+
+	Update();
+}
+
 int CollectionModel::rowCount(const QModelIndex &parent) const
 {
 	return m_List.size();

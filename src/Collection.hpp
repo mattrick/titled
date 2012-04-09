@@ -13,7 +13,6 @@ class Collection
 
 	protected:
 		SQLite3x::DB *m_DB;
-		QStringList m_Paths;
 
 		void Clean();
 		void Scan();
@@ -23,5 +22,6 @@ class Collection
 		~Collection();
 
 		void Update();
+		void Rebuild();
 		void List(std::function<void (QString, QString, QString, qint64, bool)> func);
 };

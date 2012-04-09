@@ -19,6 +19,7 @@ class FilmwebSearch;
 class ResultsModel;
 class CollectionListViewDelegate;
 class ResultsListViewDelegate;
+class SettingsWidget;
 
 class MainWindow : public QMainWindow
 {
@@ -32,6 +33,7 @@ class MainWindow : public QMainWindow
 
 		QMenu* editMenu;
 		QAction* settingsAction;
+		SettingsWidget* settingsWidget;
 
 		CollectionModel *collectionModel;
 		QListView *collectionListView;
@@ -69,6 +71,9 @@ class MainWindow : public QMainWindow
 		void rename();
 		void onQueryChange(QStringList words);
 		void clearEverything();
+
+		void openSettings();
+		void onSettingsChanged();
 
 	public:
 		MainWindow();

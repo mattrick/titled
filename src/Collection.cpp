@@ -1,4 +1,5 @@
 #include "Collection.hpp"
+#include "Defaults.hpp"
 
 #include <QSettings>
 #include <QCryptographicHash>
@@ -8,23 +9,11 @@
 
 Collection::Collection()
 {
-	QSettings settings;
-
-	settings.beginGroup("Collection");
-	m_DB = new SQLite3x::DB(settings.value("database", "sqlite.db").toString().toStdString());
-	m_Paths = settings.value("paths", QStringList("")).toStringList();
-	settings.endGroup();
+	m_DB = new SQLite3x::DB("sqlite.db");
 }
 
 Collection::~Collection()
 {
-	QSettings settings;
-
-	settings.beginGroup("Collection");
-	settings.setValue("database", QString::fromStdString(m_DB->GetFileName()));
-	settings.setValue("paths", m_Paths);
-	settings.endGroup();
-
 	delete m_DB;
 }
 
@@ -38,6 +27,7 @@ void Collection::Update()
 	{
 		std::cerr << err;
 	}
+
 	Clean();
 
 	Scan();
@@ -60,20 +50,27 @@ QString GetHash(QString path)
 
 void Collection::Clean()
 {
-	List([m_DB](QString name, QString path, QString hash, qint64 size, bool subdir){
+	List([&m_DB, this](QString name, QString path, QString hash, qint64 size, bool subdir){
 		QFile file(path);
 		QFileInfo info(file);
 
-		if (!info.exists())
+		if (!info.exists() || QSettings().value("Collection/extensions", Default::extensions).toStringList().contains(info.completeSuffix()))
 			m_DB->Query("DELETE FROM movies where hash=?")->Bind(hash.toStdString())->Execute();
 	});
+}
+
+void Collection::Rebuild()
+{
+	m_DB->Exec("DELETE FROM movies");
+
+	Scan();
 }
 
 #include <QDebug>
 
 void Collection::Scan()
 {
-	foreach (QString path, m_Paths)
+	foreach (QString path, QSettings().value("Collection/paths", Default::paths).toStringList())
 	{
 		/*
 		 * FIXME:
@@ -86,9 +83,7 @@ void Collection::Scan()
 
 		while(directories.hasNext())
 		{
-			QStringList extensions;
-			extensions	<< "3g2" << "3gp" << "asf" << "asx" << "avi" << "flv" << "mov" << "mp4" \
-						<<"mpg" << "rm" << "swf" << "vob" << "wmv" << "mkv" << "rmvb";
+			QStringList extensions = QSettings().value("Collection/extensions", Default::extensions).toStringList();
 
 			extensions.replaceInStrings(QRegExp("^(.*)$"), "*.\\1");
 

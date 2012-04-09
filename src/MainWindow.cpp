@@ -12,6 +12,8 @@
 #include <QFile>
 #include <QApplication>
 
+#include "Defaults.hpp"
+
 #include "MainWindow.hpp"
 #include "CollectionModel.hpp"
 #include "CollectionItem.hpp"
@@ -22,6 +24,7 @@
 #include "ResultsListViewDelegate.hpp"
 #include "FilterGroup.hpp"
 #include "Filter.hpp"
+#include "SettingsWidget.hpp"
 
 /*
  * TODO:
@@ -160,6 +163,7 @@ void MainWindow::setupConnects()
 	connect(saveButton, SIGNAL(clicked(bool)), this, SLOT(rename()));
 
 	connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
+	connect(settingsAction, SIGNAL(triggered()), this, SLOT(openSettings()));
 }
 
 void MainWindow::collectionSelectionChanged(const QModelIndex & current, const QModelIndex & previous)
@@ -247,4 +251,17 @@ void MainWindow::clearEverything()
 	filmwebWebView->load(QUrl("about:blank"));
 
 	previewEdit->clear();
+}
+
+void MainWindow::openSettings()
+{
+	settingsWidget = new SettingsWidget();
+	settingsWidget->show();
+
+	connect(settingsWidget, SIGNAL(settingsChanged()), this, SLOT(onSettingsChanged()));
+}
+
+void MainWindow::onSettingsChanged()
+{
+	collectionModel->Rebuild();
 }
