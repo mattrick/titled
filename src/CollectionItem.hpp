@@ -1,15 +1,11 @@
 #pragma once
 
-#include <QObject>
-#include <QHash>
-#include <QVariant>
+#include <QStandardItem>
 
 QString FormatSizeInBytes(qint64 bytes);
 
-class CollectionItem : public QObject
+class CollectionItem : public QStandardItem
 {
-	Q_OBJECT
-
 public:
 	enum Roles {
 	      NameRole = Qt::UserRole+1,
@@ -21,11 +17,9 @@ public:
 	      SubdirTextRole
 	    };
 
-	 CollectionItem(QObject *parent = 0);
-	    explicit CollectionItem(const QString &name, const QString &path, const QString &hash, qint64 &size, bool subdir, QObject *parent = 0);
+		CollectionItem();
+	    explicit CollectionItem(const QString name, const QString path, const QString hash, qint64 size, bool subdir);
 	    QVariant data(int role) const;
-
-	    QHash<int, QByteArray> roleNames() const;
 
 	    inline QString name() const { return m_Name; }
 	    inline QString path() const { return m_Path; }

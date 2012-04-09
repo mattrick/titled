@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <type_traits>
 
 #include <QtGui>
 #include <QString>
@@ -25,6 +26,8 @@
 #include "FilterGroup.hpp"
 #include "Filter.hpp"
 #include "SettingsWidget.hpp"
+#include "InfoDelegate.hpp"
+#include "InfoItem.hpp"
 
 /*
  * TODO:
@@ -59,6 +62,8 @@ void MainWindow::setup()
 	setupPreview();
 
 	setupConnects();
+
+	collectionModel->Update();
 }
 
 void MainWindow::setupMenuBar()
@@ -72,8 +77,7 @@ void MainWindow::setupMenuBar()
 
 void MainWindow::setupCollection()
 {
-	collectionModel = new CollectionModel(new CollectionItem, this);
-	collectionModel->Update();
+	collectionModel = new CollectionModel(this);
 
 	collectionLabel = new QLabel(centralWidget);
 	collectionLabel->setObjectName(QString::fromUtf8("collectionLabel"));
@@ -86,14 +90,14 @@ void MainWindow::setupCollection()
 	collectionListView->setModel(collectionModel);
 
 	collectionListViewDelegate = new CollectionListViewDelegate(collectionListView);
-	collectionListView->setItemDelegate(collectionListViewDelegate);
+	//collectionListView->setItemDelegate(collectionListViewDelegate);
 
 	collectionListView->setCurrentIndex(QModelIndex());
 }
 
 void MainWindow::setupResults()
 {
-	resultsModel = new ResultsModel(new ResultsItem, this);
+	resultsModel = new ResultsModel(this);
 
     resultsLabel = new QLabel(centralWidget);
     resultsLabel->setObjectName(QString::fromUtf8("resultsLabel"));
@@ -157,13 +161,14 @@ void MainWindow::setupConnects()
 {
 	connect(collectionListView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(collectionSelectionChanged(const QModelIndex &, const QModelIndex &)));
 	connect(filmwebSearch, SIGNAL(queryFinished(bool)), this, SLOT(queryFinished(bool)));
-	connect(filmwebSearch, SIGNAL(noResults()), resultsModel, SLOT(printEmpty()));
+	connect(filmwebSearch, SIGNAL(noResults()), this, SLOT(onNoResults()));
 	connect(filterGroup, SIGNAL(queryChanged(QStringList)), this, SLOT(onQueryChange(QStringList)));
 	connect(resultsListView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(resultsSelectionChanged(const QModelIndex &, const QModelIndex &)));
 	connect(saveButton, SIGNAL(clicked(bool)), this, SLOT(rename()));
 
 	connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
 	connect(settingsAction, SIGNAL(triggered()), this, SLOT(openSettings()));
+	connect(collectionModel, SIGNAL(countChanged(int)), this, SLOT(onCountChanged(int)));
 }
 
 void MainWindow::collectionSelectionChanged(const QModelIndex & current, const QModelIndex & previous)
@@ -191,7 +196,13 @@ void MainWindow::queryFinished(bool ok)
 	filterGroup->setEnabled(true);
 
 	if (!ok)
-		resultsModel->printError();
+	{
+		resultsModel->clear();
+
+		resultsListView->setItemDelegate(new InfoDelegate(resultsListView));
+
+		resultsModel->appendRow(new InfoItem(tr("Error fetching search results"), tr("query timeout")));
+	}
 }
 
 /*
@@ -221,6 +232,8 @@ void MainWindow::onQueryChange(QStringList words)
 {
 	filmwebSearch->queryChanged(words);
 	resultsModel->clear();
+
+	resultsListView->setItemDelegate(new ResultsListViewDelegate(resultsListView));
 }
 
 void MainWindow::rename()
@@ -264,4 +277,29 @@ void MainWindow::openSettings()
 void MainWindow::onSettingsChanged()
 {
 	collectionModel->Rebuild();
+
+	collectionListView->setCurrentIndex(QModelIndex());
+}
+
+void MainWindow::onCountChanged(int count)
+{
+	if (count)
+	{
+		if (!std::is_same<decltype(collectionListView->itemDelegate()), CollectionListViewDelegate>::value)
+			collectionListView->setItemDelegate(new CollectionListViewDelegate(collectionListView));
+	}
+	else
+	{
+		collectionListView->setItemDelegate(new InfoDelegate(collectionListView));
+		collectionModel->appendRow(new InfoItem("Your collection is empty!", "visit settings"));
+	}
+}
+
+void MainWindow::onNoResults()
+{
+	resultsModel->clear();
+
+	resultsListView->setItemDelegate(new InfoDelegate(resultsListView));
+
+	resultsModel->appendRow(new InfoItem(tr("No matching titles"), "change your query"));
 }

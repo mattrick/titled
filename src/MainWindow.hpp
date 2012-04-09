@@ -74,6 +74,8 @@ class MainWindow : public QMainWindow
 
 		void openSettings();
 		void onSettingsChanged();
+		void onCountChanged(int count);
+		void onNoResults();
 
 	public:
 		MainWindow();

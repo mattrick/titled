@@ -1,26 +1,23 @@
 #pragma once
 
+#include <QStandardItem>
 #include <QObject>
 #include <QHash>
 #include <QVariant>
 
-class ResultsItem : public QObject
+class ResultsItem : public QStandardItem
 {
-	Q_OBJECT
+	public:
+		enum Roles {
+			  TitleRole = Qt::UserRole+1,
+			  OriginalRole,
+			  YearRole,
+			  URLRole
+			};
 
-public:
-	enum Roles {
-	      TitleRole = Qt::UserRole+1,
-	      OriginalRole,
-	      YearRole,
-	      URLRole
-	    };
-
-	 ResultsItem(QObject *parent = 0);
-	    explicit ResultsItem(const QString &title, const QString &original, const QString &year, const QString &url, QObject *parent = 0);
+		 ResultsItem(QObject *parent = 0);
+		 ResultsItem(const QString &title, const QString &original, const QString &year, const QString &url, QObject *parent = 0);
 	    QVariant data(int role) const;
-
-	    QHash<int, QByteArray> roleNames() const;
 
 	private:
 		QString m_Title;

@@ -61,7 +61,6 @@ void CollectionListViewDelegate::paint(QPainter *painter, const QStyleOptionView
 {
 	painter->save();
 
-
 	if (option.state & QStyle::State_Selected)
 	{
 		painter->fillRect(option.rect, option.palette.highlight());

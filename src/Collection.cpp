@@ -50,7 +50,7 @@ QString GetHash(QString path)
 
 void Collection::Clean()
 {
-	List([&m_DB, this](QString name, QString path, QString hash, qint64 size, bool subdir){
+	List([m_DB, this](QString name, QString path, QString hash, qint64 size, bool subdir){
 		QFile file(path);
 		QFileInfo info(file);
 

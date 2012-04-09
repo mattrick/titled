@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
     QApplication::setOrganizationName("mattrick");
     QApplication::setOrganizationDomain("none.empty");
     QApplication::setApplicationName("titled");
-    QApplication::setApplicationVersion("0.2");
+    QApplication::setApplicationVersion("0.2.1");
 
     QSettings::setDefaultFormat(QSettings::IniFormat);
 

@@ -9,16 +9,6 @@ ResultsItem::ResultsItem(const QString &title, const QString &original, const QS
 {
 }
 
-QHash<int, QByteArray> ResultsItem::roleNames() const
-{
-  QHash<int, QByteArray> names;
-  names[TitleRole] = "title";
-  names[OriginalRole] = "original";
-  names[YearRole] = "year";
-  names[URLRole] = "url";
-  return names;
-}
-
 QVariant ResultsItem::data(int role) const
 {
   switch(role) {

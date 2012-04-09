@@ -27,4 +27,5 @@ class FilmwebSearch : public QWebPage
 		void queryStarted();
 		void queryFinished(bool);
 		void noResults();
+		void queryTimeout();
 };

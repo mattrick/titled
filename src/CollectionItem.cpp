@@ -46,31 +46,15 @@ QString FormatSizeInBytes(qint64 bytes)
 	return QString().setNum(size, 'f', precision) + " " + unitText;
 }
 
-CollectionItem::CollectionItem(QObject *parent)
+CollectionItem::CollectionItem()
 {
 }
 
-CollectionItem::CollectionItem(const QString &name, const QString &path, const QString &hash, qint64 &size, bool subdir, QObject *parent)
+CollectionItem::CollectionItem(const QString name, const QString path, const QString hash, qint64 size, bool subdir)
 	: m_Name(name), m_Path(path), m_Hash(hash), m_Size(size), m_Subdir(subdir)
 {
 }
 
-QHash<int, QByteArray> CollectionItem::roleNames() const
-{
-	QHash<int, QByteArray> names;
-
-	names[NameRole] = "name";
-	names[PathRole] = "path";
-	names[HashRole] = "hash";
-	names[SizeRole] = "size";
-	names[SizeTextRole] = "sizeText";
-	names[SubdirRole] = "subdir";
-	names[SubdirTextRole] = "subdirText";
-
-	return names;
-}
-
-#include <QDebug>
 
 QVariant CollectionItem::data(int role) const
 {
@@ -101,6 +85,6 @@ QVariant CollectionItem::data(int role) const
 			return subdirText();
 
 		default:
-			return QVariant();
+			return QStandardItem::data(role);
 	}
 }
