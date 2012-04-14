@@ -1,9 +1,86 @@
+#include <QSettings>
+#include <QListView>
+#include <QString>
+#include <QPushButton>
+#include <QAction>
+#include <QWebView>
+#include <QLineEdit>
+#include <QFile>
+#include <QFileInfo>
+#include <QDir>
+#include <QDirIterator>
+
 #include "MyApplication.hpp"
+#include "Defaults.hpp"
+#include "MainWindow.hpp"
+#include "CollectionModel.hpp"
+#include "ResultsModel.hpp"
+#include "ResultsItem.hpp"
+#include "FilmwebSearch.hpp"
+#include "FilterGroup.hpp"
+#include "CollectionItem.hpp"
+#include "InfoDelegate.hpp"
+#include "InfoItem.hpp"
+#include "ResultsListViewDelegate.hpp"
+#include "SettingsWindow.hpp"
+#include "CollectionListViewDelegate.hpp"
+
+MyApplication::MyApplication(int & argc, char * * argv)
+	: QApplication(argc, argv)
+{
+	setOrganizationName("mattrick");
+	setOrganizationDomain("mattrick");
+	setApplicationName("titled");
+	setApplicationVersion("0.3");
+
+	//QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
+	QSettings::setDefaultFormat(QSettings::IniFormat);
+
+	init();
+}
+
+void MyApplication::init()
+{
+	mainWin = new MainWindow;
+
+	//
+
+	collectionModel = new CollectionModel(this);
+
+	mainWin->collectionListView->setModel(collectionModel);
+
+	resultsModel = new ResultsModel(this);
+
+	mainWin->resultsListView->setModel(resultsModel);
+
+	filmwebSearch = new FilmwebSearch(resultsModel);
+
+	filterGroup = new FilterGroup(mainWin->centralWidget);
+	filterGroup->setGeometry(QRect(0, 620, 1024, 100));
 
 
+	connect(filmwebSearch, SIGNAL(queryFinished(bool)), this, SLOT(queryFinished(bool)));
+	connect(filmwebSearch, SIGNAL(noResults()), this, SLOT(onNoResults()));
+	connect(filterGroup, SIGNAL(queryChanged(QStringList&)), this, SLOT(onQueryChange(QStringList&)));
+
+	connect(collectionModel, SIGNAL(countChanged(int)), this, SLOT(onCountChanged(int)));
+
+	connect(mainWin->collectionListView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(collectionSelectionChanged(const QModelIndex &)));
+	connect(mainWin->resultsListView, SIGNAL(clicked(const QModelIndex &)), this, SLOT(resultsSelectionChanged(const QModelIndex &)));
+	connect(mainWin->saveButton, SIGNAL(clicked(bool)), this, SLOT(rename()));
+
+	connect(mainWin->settingsAction, SIGNAL(triggered()), this, SLOT(openSettings()));
+
+	collectionModel->Update();
+
+	//
+
+	mainWin->setWindowTitle(QApplication::applicationName()+" v"+QApplication::applicationVersion());
+	mainWin->show();
+}
 
 
-void MyApplication::collectionSelectionChanged(const QModelIndex & current, const QModelIndex & previous)
+void MyApplication::collectionSelectionChanged(const QModelIndex & current)
 {
 	 if (current.isValid())
 	 {
@@ -45,7 +122,7 @@ void MyApplication::queryFinished(bool ok)
  *
  */
 
-void MyApplication::resultsSelectionChanged(const QModelIndex & current, const QModelIndex & previous)
+void MyApplication::resultsSelectionChanged(const QModelIndex & current)
 {
 	if (current.isValid())
 	{
@@ -61,7 +138,7 @@ void MyApplication::resultsSelectionChanged(const QModelIndex & current, const Q
 	}
 }
 
-void MyApplication::onQueryChange(QStringList words)
+void MyApplication::onQueryChange(QStringList & words)
 {
 	filmwebSearch->queryChanged(words);
 	resultsModel->clear();
@@ -101,17 +178,15 @@ void MyApplication::clearEverything()
 
 void MyApplication::openSettings()
 {
-	settingsWidget = new SettingsWidget();
-	settingsWidget->show();
+	settingsWindow = new SettingsWindow();
+	settingsWindow->show();
 
-	connect(settingsWidget, SIGNAL(settingsChanged()), this, SLOT(onSettingsChanged()));
+	connect(settingsWindow, SIGNAL(settingsChanged()), this, SLOT(onSettingsChanged()));
 }
 
 void MyApplication::onSettingsChanged()
 {
 	collectionModel->Rebuild();
-
-	mainWin->collectionListView->setCurrentIndex(QModelIndex());
 }
 
 void MyApplication::onCountChanged(int count)

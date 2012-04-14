@@ -2,17 +2,22 @@
 
 #include <functional>
 
-#include <QStringList>
-#include <QString>
+#include <QtGlobal>
 
-#include <sqlite3x/SQLite3x.hpp>
+class QString;
+class QStringList;
+
+namespace SQLite3x
+{
+	class DB;
+}
 
 class Collection
 {
 	private:
 
 	protected:
-		SQLite3x::DB *m_DB;
+		SQLite3x::DB* m_DB;
 
 		void Clean();
 		void Scan();
@@ -23,5 +28,5 @@ class Collection
 
 		void Update();
 		void Rebuild();
-		void List(std::function<void (QString, QString, QString, qint64, bool)> func);
+		void List(std::function<void (const QString&, const QString&, const QString&, qint64, bool)> func);
 };

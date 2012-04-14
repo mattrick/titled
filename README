@@ -1,0 +1,4 @@
+EXPERIMENTAL
+------------
+
+This application can be compiled using newest Qt5 (as of 2012-04-15 it's alpha), using -DUSE_QT5=true cmake switch.

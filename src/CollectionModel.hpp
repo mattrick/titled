@@ -1,8 +1,6 @@
 #pragma once
 
 #include "MyListModel.hpp"
-#include "CollectionItem.hpp"
-#include <QStringList>
 
 class Collection;
 
@@ -11,8 +9,7 @@ class CollectionModel : public MyListModel
 	Q_OBJECT
 
 	private:
-
-		Collection *m_Collection;
+		Collection* m_Collection;
 
 		void UpdateList();
 

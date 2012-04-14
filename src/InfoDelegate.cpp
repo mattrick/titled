@@ -1,13 +1,12 @@
-#include "InfoDelegate.hpp"
-#include "InfoItem.hpp"
-
 #include <QFont>
 #include <QApplication>
 #include <QPainter>
 #include <QTextOption>
-
 #include <QListView>
 #include <QScrollBar>
+
+#include "InfoDelegate.hpp"
+#include "InfoItem.hpp"
 
 InfoDelegate::InfoDelegate(QListView* listview)
 	: m_ListView(listview)

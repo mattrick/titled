@@ -1,11 +1,31 @@
-#include "Collection.hpp"
-#include "Defaults.hpp"
+#include <iostream>
 
 #include <QSettings>
 #include <QCryptographicHash>
 #include <QFile>
 #include <QDirIterator>
 #include <QRegExp>
+
+#include <sqlite3x/SQLite3x.hpp>
+
+#include "Defaults.hpp"
+#include "Collection.hpp"
+
+QString GetHash(const QString& path)
+{
+	QCryptographicHash crypto(QCryptographicHash::Md5);
+
+	QFile file(path);
+	file.open(QFile::ReadOnly);
+
+	while (!file.atEnd())
+	{
+		crypto.addData(file.read(8192));
+	}
+
+	return QString(crypto.result().toHex());
+}
+
 
 Collection::Collection()
 {
@@ -33,24 +53,9 @@ void Collection::Update()
 	Scan();
 }
 
-QString GetHash(QString path)
-{
-	QCryptographicHash crypto(QCryptographicHash::Md5);
-
-	QFile file(path);
-	file.open(QFile::ReadOnly);
-
-	while (!file.atEnd())
-	{
-		crypto.addData(file.read(8192));
-	}
-
-	return QString(crypto.result().toHex());
-}
-
 void Collection::Clean()
 {
-	List([m_DB, this](QString name, QString path, QString hash, qint64 size, bool subdir){
+	List([this](QString name, QString path, QString hash, qint64 size, bool subdir){
 		QFile file(path);
 		QFileInfo info(file);
 
@@ -65,8 +70,6 @@ void Collection::Rebuild()
 
 	Scan();
 }
-
-#include <QDebug>
 
 void Collection::Scan()
 {
@@ -139,7 +142,7 @@ void Collection::Scan()
 	}
 }
 
-void Collection::List(std::function<void (QString, QString, QString, qint64, bool)> func)
+void Collection::List(std::function<void (const QString&, const QString&, const QString&, qint64, bool)> func)
 {
 	m_DB->Query("SELECT * FROM movies ORDER BY name")->Execute([&func](std::string name, std::string path, std::string hash, int64 size, bool subdir){
 		func(QString::fromUtf8(name.c_str()), QString::fromUtf8(path.c_str()), QString::fromUtf8(hash.c_str()), size, subdir);

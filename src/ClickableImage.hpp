@@ -4,21 +4,20 @@
 
 class ClickableImage : public QLabel
 {
-    Q_OBJECT
+	Q_OBJECT
 
 	private:
-		QPoint m_Point;
+		QPoint* m_LastPoint;
 		bool m_Clicked;
 
-protected:
-    // re-implement processing of mouse events
-    void mouseReleaseEvent ( QMouseEvent * e );
-    void mousePressEvent ( QMouseEvent * e );
+	protected:
+		void mouseReleaseEvent(QMouseEvent* e);
+		void mousePressEvent(QMouseEvent* e);
 
-public:
-    ClickableImage(QPoint pos, QPixmap image, QWidget* parent = 0);
-    ~ClickableImage();
+	public:
+		ClickableImage(const QPoint& pos, const QPixmap& image, QWidget* parent = 0);
+		virtual~ClickableImage();
 
-    signals:
-        void clicked();
+	signals:
+		void clicked();
 };

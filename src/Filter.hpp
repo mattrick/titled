@@ -2,12 +2,11 @@
 
 #include <QWidget>
 
-#include <QLabel>
-#include <QLineEdit>
-#include <QPushButton>
-
 class WordDB;
 class ClickableImage;
+class QLineEdit;
+class QLabel;
+class QPushButton;
 
 class Filter : public QWidget
 {

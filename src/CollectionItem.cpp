@@ -50,7 +50,7 @@ CollectionItem::CollectionItem()
 {
 }
 
-CollectionItem::CollectionItem(const QString name, const QString path, const QString hash, qint64 size, bool subdir)
+CollectionItem::CollectionItem(const QString& name, const QString& path, const QString& hash, qint64 size, bool subdir)
 	: m_Name(name), m_Path(path), m_Hash(hash), m_Size(size), m_Subdir(subdir)
 {
 }

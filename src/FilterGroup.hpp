@@ -32,6 +32,6 @@ class FilterGroup : public QScrollArea
 		void onFilterStateChanged();
 
 	signals:
-		void queryChanged(QStringList);
+		void queryChanged(QStringList&);
 		//void extrasChanged(QStringList);
 };

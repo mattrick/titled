@@ -1,11 +1,18 @@
-#include "SettingsWidget.hpp"
+#include <QSettings>
+#include <QLabel>
+#include <QListWidget>
+#include <QPushButton>
+#include <QListWidgetItem>
+#include <QFileDialog>
+
+#include "SettingsWindow.hpp"
 #include "Defaults.hpp"
 
-SettingsWidget::SettingsWidget(QWidget* parent)
+SettingsWindow::SettingsWindow(QWidget* parent)
 	: QWidget(parent)
 {
 	if (objectName().isEmpty())
-		setObjectName(QString::fromUtf8("settingsWidget"));
+		setObjectName(QString::fromUtf8("settingsWindow"));
 	resize(640, 480);
 	setWindowTitle(tr("Settings"));
 
@@ -14,7 +21,7 @@ SettingsWidget::SettingsWidget(QWidget* parent)
 	setupConnects();
 }
 
-void SettingsWidget::setupTabWidget()
+void SettingsWindow::setupTabWidget()
 {
 	tabWidget = new QTabWidget(this);
 	tabWidget->setObjectName(QString::fromUtf8("tabWidget"));
@@ -29,7 +36,7 @@ void SettingsWidget::setupTabWidget()
 	tabWidget->setCurrentIndex(0);
 }
 
-void SettingsWidget::setupCollectionTab()
+void SettingsWindow::setupCollectionTab()
 {
 	QSettings settings;
 
@@ -100,7 +107,7 @@ void SettingsWidget::setupCollectionTab()
 	applyButton->setText(tr("Apply"));
 }
 
-void SettingsWidget::setupConnects()
+void SettingsWindow::setupConnects()
 {
 	connect(applyButton, SIGNAL(clicked()), this, SLOT(saveSettings()));
 
@@ -111,7 +118,7 @@ void SettingsWidget::setupConnects()
 	connect(deleteExtensionButton, SIGNAL(clicked()), this, SLOT(deleteExtension()));
 }
 
-void SettingsWidget::saveSettings()
+void SettingsWindow::saveSettings()
 {
 	QStringList paths;
 
@@ -137,7 +144,7 @@ void SettingsWidget::saveSettings()
 	emit settingsChanged();
 }
 
-void SettingsWidget::addDirectory()
+void SettingsWindow::addDirectory()
 {
 	QStringList dirs;
 
@@ -158,7 +165,7 @@ void SettingsWidget::addDirectory()
 	}
 }
 
-void SettingsWidget::deleteDirectory()
+void SettingsWindow::deleteDirectory()
 {
 	if (dirsList->currentIndex().isValid())
 	{
@@ -166,7 +173,7 @@ void SettingsWidget::deleteDirectory()
 	}
 }
 
-void SettingsWidget::addExtension()
+void SettingsWindow::addExtension()
 {
 
 	QListWidgetItem* item = new QListWidgetItem("", extensionsList);
@@ -177,7 +184,7 @@ void SettingsWidget::addExtension()
 	connect(extensionsList->itemDelegate(), SIGNAL(closeEditor(QWidget*, QAbstractItemDelegate::EndEditHint)), this, SLOT(onCloseEditor(QWidget*, QAbstractItemDelegate::EndEditHint)));
 }
 
-void SettingsWidget::deleteExtension()
+void SettingsWindow::deleteExtension()
 {
 	if (extensionsList->currentIndex().isValid())
 	{
@@ -185,7 +192,7 @@ void SettingsWidget::deleteExtension()
 	}
 }
 
-void SettingsWidget::onCloseEditor(QWidget* editor, QAbstractItemDelegate::EndEditHint hint)
+void SettingsWindow::onCloseEditor(QWidget* editor, QAbstractItemDelegate::EndEditHint hint)
 {
 	if (extensionsList->currentItem()->text().isEmpty())
 		deleteExtension();

@@ -1,21 +1,20 @@
 #include <algorithm>
 #include <type_traits>
 
-#include <QtGui>
-#include <QString>
-#include <QUrl>
-#include <QWebFrame>
-#include <QWebPage>
-#include <QWebElement>
-#include <QWebElementCollection>
-#include <QNetworkCookie>
+#include <QWidget>
 #include <QLabel>
-#include <QFile>
-#include <QApplication>
-
-#include "Defaults.hpp"
+#include <QLineEdit>
+#include <QListView>
+#include <QMenu>
+#include <QMenuBar>
+#include <QPushButton>
+#include <QUrl>
+#include <QWebView>
+#include <QNetworkCookie>
+#include <QNetworkCookieJar>
 
 #include "MainWindow.hpp"
+#include "Defaults.hpp"
 
 /*
  * TODO:
@@ -72,8 +71,6 @@ void MainWindow::setupCollection()
 	collectionListView = new QListView(centralWidget);
 	collectionListView->setObjectName(QString::fromUtf8("collectionListView"));
 	collectionListView->setGeometry(QRect(0, 20, 300, 300));
-
-	collectionListView->setCurrentIndex(QModelIndex());
 }
 
 void MainWindow::setupResults()
@@ -86,10 +83,6 @@ void MainWindow::setupResults()
     resultsListView = new QListView(centralWidget);
     resultsListView->setObjectName(QString::fromUtf8("resultsListView"));
     resultsListView->setGeometry(QRect(0, 340, 300, 250));
-
-    //connect(resultsListView->horizontalScrollBar(), SIGNAL(valueChanged(int)), resultsListView->viewport(), SLOT(repaint()));
-
-    resultsListView->setCurrentIndex(QModelIndex());
 }
 
 void MainWindow::setupBrowser()

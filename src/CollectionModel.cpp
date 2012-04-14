@@ -1,8 +1,8 @@
+#include <QSettings>
+
 #include "Collection.hpp"
 #include "CollectionModel.hpp"
 #include "CollectionItem.hpp"
-
-#include <QSettings>
 
 CollectionModel::CollectionModel(QObject *parent)
 	: MyListModel(parent)

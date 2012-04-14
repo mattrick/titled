@@ -1,16 +1,16 @@
-#include "FilmwebSearch.hpp"
-
 #include <QWebFrame>
 #include <QWebElement>
 #include <QWebElementCollection>
 #include <QNetworkCookie>
+#include <QNetworkCookieJar>
 #include <QTimer>
 #include <QAction>
 
+#include "FilmwebSearch.hpp"
 #include "ResultsModel.hpp"
 #include "ResultsItem.hpp"
 
-FilmwebSearch::FilmwebSearch(ResultsModel* model, QObject * parent)
+FilmwebSearch::FilmwebSearch(ResultsModel* model, QObject* parent)
 	: resultsModel(model), QWebPage(parent)
 {
 	connect(mainFrame(), SIGNAL(loadFinished(bool)), this, SLOT(queryLoadFinished(bool)));
@@ -26,7 +26,7 @@ FilmwebSearch::FilmwebSearch(ResultsModel* model, QObject * parent)
 	connect(timeout, SIGNAL(timeout()), action(Stop), SLOT(trigger()));
 }
 
-void FilmwebSearch::queryChanged(QStringList tokens)
+void FilmwebSearch::queryChanged(QStringList & tokens)
 {
 	emit queryStarted();
 

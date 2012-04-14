@@ -1,14 +1,12 @@
-#include "CollectionListViewDelegate.hpp"
-
 #include <QFont>
 #include <QApplication>
 #include <QPainter>
 #include <QTextOption>
-
-#include "CollectionItem.hpp"
-
 #include <QListView>
 #include <QScrollBar>
+
+#include "CollectionListViewDelegate.hpp"
+#include "CollectionItem.hpp"
 
 CollectionListViewDelegate::CollectionListViewDelegate(QListView* listview)
 	: collectionListView(listview)

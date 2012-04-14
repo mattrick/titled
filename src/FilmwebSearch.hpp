@@ -1,10 +1,11 @@
 #pragma once
 
 #include <QWebPage>
-#include <QTimer>
 
 class ResultsModel;
 class ResultsItem;
+class QTimer;
+class QStringList;
 
 class FilmwebSearch : public QWebPage
 {
@@ -15,13 +16,13 @@ class FilmwebSearch : public QWebPage
 		QTimer* timeout;
 
 	public:
-		FilmwebSearch(ResultsModel* model, QObject * parent = 0);
+		FilmwebSearch(ResultsModel* model, QObject* parent = 0);
 
 	private slots:
 		void queryLoadFinished(bool ok = false);
 
 	public slots:
-		void queryChanged(QStringList tokens);
+		void queryChanged(QStringList& tokens);
 
 	signals:
 		void queryStarted();

@@ -1,15 +1,12 @@
-#include "ResultsListViewDelegate.hpp"
-
 #include <QFont>
 #include <QApplication>
 #include <QPainter>
 #include <QTextOption>
-
-#include "ResultsItem.hpp"
-
 #include <QListView>
 #include <QScrollBar>
-#include <QDebug>
+
+#include "ResultsListViewDelegate.hpp"
+#include "ResultsItem.hpp"
 
 ResultsListViewDelegate::ResultsListViewDelegate(QListView* listview)
 	: resultsListView(listview)
@@ -20,7 +17,7 @@ ResultsListViewDelegate::~ResultsListViewDelegate()
 {
 }
 
-QSize ResultsListViewDelegate::trueSizeHint(const QStyleOptionViewItem &option, const QModelIndex &index ) const
+QSize ResultsListViewDelegate::trueSizeHint(const QStyleOptionViewItem& option, const QModelIndex& index ) const
 {
     QFont font = QApplication::font();
 
@@ -44,7 +41,7 @@ QSize ResultsListViewDelegate::trueSizeHint(const QStyleOptionViewItem &option, 
     return(hint);
 }
 
-QSize ResultsListViewDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index ) const
+QSize ResultsListViewDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index ) const
 {
 	QSize hint = trueSizeHint(option, index);
 
@@ -59,7 +56,7 @@ QSize ResultsListViewDelegate::sizeHint(const QStyleOptionViewItem &option, cons
 	return hint;
 }
 
-void ResultsListViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+void ResultsListViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
 	painter->save();
 

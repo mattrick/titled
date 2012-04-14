@@ -15,7 +15,7 @@ class ResultsListViewDelegate : public QStyledItemDelegate
 		ResultsListViewDelegate(QListView* listview);
 		virtual ~ResultsListViewDelegate();
 
-		void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-		QSize trueSizeHint(const QStyleOptionViewItem &option, const QModelIndex &index ) const;
-		QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index ) const;
+		void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const;
+		QSize trueSizeHint(const QStyleOptionViewItem& option, const QModelIndex& index ) const;
+		QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index ) const;
 };

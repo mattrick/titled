@@ -1,18 +1,16 @@
 #pragma once
 
 #include <QMainWindow>
-#include <QtGui/QListView>
-#include <QtGui/QWidget>
-#include <QtGui/QScrollArea>
-#include <QtWebKit/QWebView>
-#include <QStringList>
-#include <QStringListModel>
-#include <QPushButton>
-#include <QLabel>
-#include <QMenuBar>
-#include <QAction>
 
-class QListViewItem;
+class QWidget;
+class QMenu;
+class QAction;
+class QListView;
+class QLineEdit;
+class QLabel;
+class QWebView;
+class QPushButton;
+class QCloseEvent;
 
 class MainWindow : public QMainWindow
 {

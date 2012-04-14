@@ -1,10 +1,11 @@
-#include "Filter.hpp"
-
 #include <QLineEdit>
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QApplication>
+#include <QLabel>
+#include <QPushButton>
 
+#include "Filter.hpp"
 #include "ClickableImage.hpp"
 #include "WordDB.hpp"
 

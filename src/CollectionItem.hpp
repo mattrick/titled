@@ -6,19 +6,27 @@ QString FormatSizeInBytes(qint64 bytes);
 
 class CollectionItem : public QStandardItem
 {
-public:
-	enum Roles {
-	      NameRole = Qt::UserRole+1,
-	      PathRole,
-	      HashRole,
-	      SizeRole,
-	      SizeTextRole,
-	      SubdirRole,
-	      SubdirTextRole
-	    };
+	private:
+		QString m_Name;
+		QString m_Path;
+		QString m_Hash;
+		qint64 m_Size;
+		bool m_Subdir;
+
+	public:
+		enum Roles
+		{
+			NameRole = Qt::UserRole,
+			PathRole,
+			HashRole,
+			SizeRole,
+			SizeTextRole,
+			SubdirRole,
+			SubdirTextRole
+		};
 
 		CollectionItem();
-	    explicit CollectionItem(const QString name, const QString path, const QString hash, qint64 size, bool subdir);
+	    explicit CollectionItem(const QString& name, const QString& path, const QString& hash, qint64 size, bool subdir);
 	    QVariant data(int role) const;
 
 	    inline QString name() const { return m_Name; }
@@ -28,11 +36,4 @@ public:
 	    inline QString sizeText() const { return FormatSizeInBytes(m_Size); }
 	    inline bool subdir() const { return m_Subdir; }
 	    inline QString subdirText() const { return ((m_Subdir) ? ("yes") : ("no")); }
-
-	private:
-		QString m_Name;
-		QString m_Path;
-		QString m_Hash;
-		qint64 m_Size;
-		bool m_Subdir;
 };

@@ -1,6 +1,8 @@
 #include "MyListModel.hpp"
 
-MyListModel::MyListModel(QObject *parent)
+#include <QStandardItem>
+
+MyListModel::MyListModel(QObject* parent)
 	: QAbstractListModel(parent)
 {
 }
@@ -10,12 +12,12 @@ MyListModel::~MyListModel()
 	clear();
 }
 
-int MyListModel::rowCount(const QModelIndex &parent) const
+int MyListModel::rowCount(const QModelIndex& parent) const
 {
 	return m_List.size();
 }
 
-QVariant MyListModel::data(const QModelIndex &index, int role) const
+QVariant MyListModel::data(const QModelIndex& index, int role) const
 {
 	if (index.row() < 0 || index.row() >= m_List.size())
 		return QVariant();
@@ -23,12 +25,12 @@ QVariant MyListModel::data(const QModelIndex &index, int role) const
 	return m_List.at(index.row())->data(role);
 }
 
-void MyListModel::appendRow(QStandardItem *item)
+void MyListModel::appendRow(QStandardItem* item)
 {
 	appendRows(QList<QStandardItem*>() << item);
 }
 
-void MyListModel::appendRows(const QList<QStandardItem *> &items)
+void MyListModel::appendRows(const QList<QStandardItem*>& items)
 {
 	beginInsertRows(QModelIndex(), rowCount(), rowCount() + items.size() - 1);
 		foreach (QStandardItem *item, items)
@@ -39,7 +41,7 @@ void MyListModel::appendRows(const QList<QStandardItem *> &items)
 	endInsertRows();
 }
 
-void MyListModel::insertRow(int row, QStandardItem *item)
+void MyListModel::insertRow(int row, QStandardItem* item)
 {
 	beginInsertRows(QModelIndex(), row, row);
 		//connect(item, SIGNAL(dataChanged()), SLOT(handleItemChange()));
@@ -60,7 +62,7 @@ void MyListModel::insertRow(int row, QStandardItem *item)
 	return 0;
 }*/
 
-QModelIndex MyListModel::indexFromItem(const QStandardItem *item) const
+QModelIndex MyListModel::indexFromItem(const QStandardItem* item) const
 {
 	Q_ASSERT(item);
 
@@ -81,7 +83,7 @@ void MyListModel::clear()
 	reset();
 }
 
-bool MyListModel::removeRow(int row, const QModelIndex &parent)
+bool MyListModel::removeRow(int row, const QModelIndex& parent)
 {
 	Q_UNUSED(parent);
 
@@ -95,7 +97,7 @@ bool MyListModel::removeRow(int row, const QModelIndex &parent)
 	return true;
 }
 
-bool MyListModel::removeRows(int row, int count, const QModelIndex &parent)
+bool MyListModel::removeRows(int row, int count, const QModelIndex& parent)
 {
 	Q_UNUSED(parent);
 
@@ -121,7 +123,7 @@ QStandardItem* MyListModel::takeRow(int row)
 	return item;
 }
 
-Qt::ItemFlags MyListModel::flags(const QModelIndex &index) const
+Qt::ItemFlags MyListModel::flags(const QModelIndex& index) const
 {
 	return m_List.at(index.row())->flags();
 }

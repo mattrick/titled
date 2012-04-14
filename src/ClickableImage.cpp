@@ -1,31 +1,32 @@
-#include "ClickableImage.hpp"
-
 #include <QPixmap>
 #include <QMouseEvent>
 
-ClickableImage::ClickableImage(QPoint pos, QPixmap image, QWidget* parent)
+#include "ClickableImage.hpp"
+
+ClickableImage::ClickableImage(const QPoint& pos, const QPixmap& image, QWidget* parent)
 	: QLabel(parent), m_Clicked(false)
 {
 	setPixmap(image);
 	setGeometry(QRect(pos.x(), pos.y(), image.width(), image.height()));
+
+	m_LastPoint = new QPoint();
 }
 
 ClickableImage::~ClickableImage()
 {
-
+	delete m_LastPoint;
 }
 
-void ClickableImage::mousePressEvent ( QMouseEvent * e )
+void ClickableImage::mousePressEvent(QMouseEvent* e)
 {
-	m_Point = e->pos();
+	*m_LastPoint = e->pos();
 	m_Clicked = true;
 }
 
-void ClickableImage::mouseReleaseEvent ( QMouseEvent * e )
+void ClickableImage::mouseReleaseEvent(QMouseEvent* e)
 {
-
-	    if ((m_Clicked) && (e->pos() == m_Point))
-	        emit clicked();
+	if (m_Clicked && (e->pos() == *m_LastPoint))
+		emit clicked();
 }
 
 
