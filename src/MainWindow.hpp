@@ -13,19 +13,12 @@
 #include <QAction>
 
 class QListViewItem;
-class CollectionModel;
-class FilterGroup;
-class FilmwebSearch;
-class ResultsModel;
-class CollectionListViewDelegate;
-class ResultsListViewDelegate;
-class SettingsWidget;
 
 class MainWindow : public QMainWindow
 {
 	Q_OBJECT
 
-	private:
+	public:
 		QWidget *centralWidget;
 
 		QMenu* fileMenu;
@@ -33,19 +26,12 @@ class MainWindow : public QMainWindow
 
 		QMenu* editMenu;
 		QAction* settingsAction;
-		SettingsWidget* settingsWidget;
 
-		CollectionModel *collectionModel;
 		QListView *collectionListView;
-		CollectionListViewDelegate *collectionListViewDelegate;
 		QLabel *collectionLabel;
 
 		QLabel *resultsLabel;
 		QListView *resultsListView;
-		ResultsListViewDelegate *resultsListViewDelegate;
-		ResultsModel* resultsModel;
-		FilmwebSearch* filmwebSearch;
-		FilterGroup* filterGroup;
 
 		QLabel *filmwebLabel;
 		QWebView *filmwebWebView;
@@ -63,19 +49,6 @@ class MainWindow : public QMainWindow
 		void setupFilters();
 		void setupPreview();
 		void setupConnects();
-
-	private slots:
-		void collectionSelectionChanged(const QModelIndex & current, const QModelIndex & previous);
-		void queryFinished(bool ok);
-		void resultsSelectionChanged(const QModelIndex & current, const QModelIndex & previous);
-		void rename();
-		void onQueryChange(QStringList words);
-		void clearEverything();
-
-		void openSettings();
-		void onSettingsChanged();
-		void onCountChanged(int count);
-		void onNoResults();
 
 	public:
 		MainWindow();

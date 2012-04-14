@@ -16,18 +16,6 @@
 #include "Defaults.hpp"
 
 #include "MainWindow.hpp"
-#include "CollectionModel.hpp"
-#include "CollectionItem.hpp"
-#include "FilmwebSearch.hpp"
-#include "ResultsModel.hpp"
-#include "ResultsItem.hpp"
-#include "CollectionListViewDelegate.hpp"
-#include "ResultsListViewDelegate.hpp"
-#include "FilterGroup.hpp"
-#include "Filter.hpp"
-#include "SettingsWidget.hpp"
-#include "InfoDelegate.hpp"
-#include "InfoItem.hpp"
 
 /*
  * TODO:
@@ -63,7 +51,6 @@ void MainWindow::setup()
 
 	setupConnects();
 
-	collectionModel->Update();
 }
 
 void MainWindow::setupMenuBar()
@@ -77,8 +64,6 @@ void MainWindow::setupMenuBar()
 
 void MainWindow::setupCollection()
 {
-	collectionModel = new CollectionModel(this);
-
 	collectionLabel = new QLabel(centralWidget);
 	collectionLabel->setObjectName(QString::fromUtf8("collectionLabel"));
 	collectionLabel->setGeometry(QRect(0, 0, 251, 16));
@@ -87,18 +72,12 @@ void MainWindow::setupCollection()
 	collectionListView = new QListView(centralWidget);
 	collectionListView->setObjectName(QString::fromUtf8("collectionListView"));
 	collectionListView->setGeometry(QRect(0, 20, 300, 300));
-	collectionListView->setModel(collectionModel);
-
-	collectionListViewDelegate = new CollectionListViewDelegate(collectionListView);
-	//collectionListView->setItemDelegate(collectionListViewDelegate);
 
 	collectionListView->setCurrentIndex(QModelIndex());
 }
 
 void MainWindow::setupResults()
 {
-	resultsModel = new ResultsModel(this);
-
     resultsLabel = new QLabel(centralWidget);
     resultsLabel->setObjectName(QString::fromUtf8("resultsLabel"));
     resultsLabel->setGeometry(QRect(0, 320, 301, 16));
@@ -107,16 +86,10 @@ void MainWindow::setupResults()
     resultsListView = new QListView(centralWidget);
     resultsListView->setObjectName(QString::fromUtf8("resultsListView"));
     resultsListView->setGeometry(QRect(0, 340, 300, 250));
-    resultsListView->setModel(resultsModel);
 
-    resultsListViewDelegate = new ResultsListViewDelegate(resultsListView);
-    resultsListView->setItemDelegate(resultsListViewDelegate);
-
-    connect(resultsListView->horizontalScrollBar(), SIGNAL(valueChanged(int)), resultsListView->viewport(), SLOT(repaint()));
+    //connect(resultsListView->horizontalScrollBar(), SIGNAL(valueChanged(int)), resultsListView->viewport(), SLOT(repaint()));
 
     resultsListView->setCurrentIndex(QModelIndex());
-
-    filmwebSearch = new FilmwebSearch(resultsModel);
 }
 
 void MainWindow::setupBrowser()
@@ -141,8 +114,7 @@ void MainWindow::setupBrowser()
 
 void MainWindow::setupFilters()
 {
-	filterGroup = new FilterGroup(centralWidget);
-	filterGroup->setGeometry(QRect(0, 620, 1024, 100));
+
 }
 
 void MainWindow::setupPreview()
@@ -159,147 +131,5 @@ void MainWindow::setupPreview()
 
 void MainWindow::setupConnects()
 {
-	connect(collectionListView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(collectionSelectionChanged(const QModelIndex &, const QModelIndex &)));
-	connect(filmwebSearch, SIGNAL(queryFinished(bool)), this, SLOT(queryFinished(bool)));
-	connect(filmwebSearch, SIGNAL(noResults()), this, SLOT(onNoResults()));
-	connect(filterGroup, SIGNAL(queryChanged(QStringList)), this, SLOT(onQueryChange(QStringList)));
-	connect(resultsListView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(resultsSelectionChanged(const QModelIndex &, const QModelIndex &)));
-	connect(saveButton, SIGNAL(clicked(bool)), this, SLOT(rename()));
-
 	connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
-	connect(settingsAction, SIGNAL(triggered()), this, SLOT(openSettings()));
-	connect(collectionModel, SIGNAL(countChanged(int)), this, SLOT(onCountChanged(int)));
-}
-
-void MainWindow::collectionSelectionChanged(const QModelIndex & current, const QModelIndex & previous)
-{
-	 if (current.isValid())
-	 {
-		 collectionListView->setEnabled(false);
-		 filterGroup->setEnabled(false);
-		 QString name = collectionModel->data(current, CollectionItem::NameRole).toString();
-
-		 QStringList tokens = name.split(QRegExp("[^\\w']"), QString::SkipEmptyParts);
-
-		 filterGroup->makeList(tokens);
-
-		 filmwebWebView->load(QUrl("about:blank"));
-		 previewEdit->clear();
-	 }
-}
-
-void MainWindow::queryFinished(bool ok)
-{
-	resultsListView->setCurrentIndex(QModelIndex());
-
-	collectionListView->setEnabled(true);
-	filterGroup->setEnabled(true);
-
-	if (!ok)
-	{
-		resultsModel->clear();
-
-		resultsListView->setItemDelegate(new InfoDelegate(resultsListView));
-
-		resultsModel->appendRow(new InfoItem(tr("Error fetching search results"), tr("query timeout")));
-	}
-}
-
-/*
- * TODO:
- *
- * Custom saving scheme
- *
- */
-
-void MainWindow::resultsSelectionChanged(const QModelIndex & current, const QModelIndex & previous)
-{
-	if (current.isValid())
-	{
-		filmwebWebView->load(resultsModel->data(current, ResultsItem::URLRole).toString());
-
-		QString newname = resultsModel->data(current, ResultsItem::TitleRole).toString();
-		newname += " (" + resultsModel->data(current, ResultsItem::YearRole).toString() + ")";
-
-		if (!filterGroup->getExtras().empty())
-			newname += " " + filterGroup->getExtras().join(".");
-
-		previewEdit->setText(newname);
-	}
-}
-
-void MainWindow::onQueryChange(QStringList words)
-{
-	filmwebSearch->queryChanged(words);
-	resultsModel->clear();
-
-	resultsListView->setItemDelegate(new ResultsListViewDelegate(resultsListView));
-}
-
-void MainWindow::rename()
-{
-	QString path = collectionModel->data(collectionListView->currentIndex(), CollectionItem::PathRole).toString();
-
-	QFile file(path);
-	QFileInfo info(file);
-
-	QString newpath = info.absoluteDir().absoluteFilePath(previewEdit->text() + "." + info.completeSuffix());
-
-	file.rename(newpath);
-
-	collectionModel->Update();
-
-	clearEverything();
-}
-
-void MainWindow::clearEverything()
-{
-	collectionListView->setCurrentIndex(QModelIndex());
-
-	resultsModel->clear();
-	resultsListView->setCurrentIndex(QModelIndex());
-
-	filterGroup->clear();
-
-	filmwebWebView->load(QUrl("about:blank"));
-
-	previewEdit->clear();
-}
-
-void MainWindow::openSettings()
-{
-	settingsWidget = new SettingsWidget();
-	settingsWidget->show();
-
-	connect(settingsWidget, SIGNAL(settingsChanged()), this, SLOT(onSettingsChanged()));
-}
-
-void MainWindow::onSettingsChanged()
-{
-	collectionModel->Rebuild();
-
-	collectionListView->setCurrentIndex(QModelIndex());
-}
-
-void MainWindow::onCountChanged(int count)
-{
-	if (count)
-	{
-		if (!std::is_same<decltype(collectionListView->itemDelegate()), CollectionListViewDelegate>::value)
-			collectionListView->setItemDelegate(new CollectionListViewDelegate(collectionListView));
-	}
-	else
-	{
-		collectionListView->setItemDelegate(new InfoDelegate(collectionListView));
-		collectionModel->appendRow(new InfoItem("Your collection is empty!", "visit settings"));
-	}
-}
-
-void MainWindow::onNoResults()
-{
-	resultsModel->clear();
-
-	resultsListView->setItemDelegate(new InfoDelegate(resultsListView));
-
-	resultsModel->appendRow(new InfoItem(tr("No matching titles"), "change your query"));
 }

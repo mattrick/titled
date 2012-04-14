@@ -1,5 +1,7 @@
 #pragma once
 
+#include <QStringList>
+
 namespace Default
 {
 	const QStringList paths = QStringList();
