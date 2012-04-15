@@ -1,3 +1,8 @@
+ #include "FilmwebProvider.hpp"
+
+#include <QtPlugin>
+
+#include <QWebPage>
 #include <QWebFrame>
 #include <QWebElement>
 #include <QWebElementCollection>
@@ -6,27 +11,25 @@
 #include <QTimer>
 #include <QAction>
 
-#include "FilmwebSearch.hpp"
-#include "ResultsModel.hpp"
-#include "ResultsItem.hpp"
-
-FilmwebSearch::FilmwebSearch(ResultsModel* model, QObject* parent)
-	: resultsModel(model), QWebPage(parent)
+FilmwebProvider::FilmwebProvider(ResultsModel* model, QObject* parent)
+	: resultsModel(model)
 {
-	connect(mainFrame(), SIGNAL(loadFinished(bool)), this, SLOT(queryLoadFinished(bool)));
+	webPage = new QWebPage(this);
+
+	connect(webPage->mainFrame(), SIGNAL(loadFinished(bool)), this, SLOT(queryLoadFinished(bool)));
 
 	QList<QNetworkCookie> cookies;
 
 	QNetworkCookie cookie(QByteArray("welcomeScreen"),QByteArray("welcome_screen"));
 	cookies.append(cookie);
 
-	networkAccessManager()->cookieJar()->setCookiesFromUrl(cookies, QUrl("http://www.filmweb.pl"));
+	webPage->networkAccessManager()->cookieJar()->setCookiesFromUrl(cookies, QUrl("http://www.filmweb.pl"));
 
 	timeout = new QTimer();
-	connect(timeout, SIGNAL(timeout()), action(Stop), SLOT(trigger()));
+	connect(timeout, SIGNAL(timeout()), webPage->action(webPage->Stop), SLOT(trigger()));
 }
 
-void FilmwebSearch::queryChanged(QStringList & tokens)
+void FilmwebProvider::query(const QStringList & tokens)
 {
 	emit queryStarted();
 
@@ -34,18 +37,18 @@ void FilmwebSearch::queryChanged(QStringList & tokens)
 
 	QUrl queryUrl("http://www.filmweb.pl/search?q=" + tokens.join("+"));
 
-	mainFrame()->load(queryUrl);
+	webPage->mainFrame()->load(queryUrl);
 
 	timeout->start(5000);
 }
 
-void FilmwebSearch::queryLoadFinished(bool ok)
+void FilmwebProvider::queryLoadFinished(bool ok)
 {
 	timeout->stop();
 
 	if (ok)
 	{
-		QWebElement document = mainFrame()->documentElement();
+		QWebElement document = webPage->mainFrame()->documentElement();
 
 		QWebElementCollection links = document.findAll("li.searchResult");
 		foreach (QWebElement e, links)
@@ -63,10 +66,15 @@ void FilmwebSearch::queryLoadFinished(bool ok)
 			}
 		}
 	}
+	else
+		emit queryTimeout();
 
-	if (!resultsModel->rowCount())
-		emit noResults();
-
-
-	emit queryFinished(ok);
+	emit queryFinished(resultsModel->rowCount());
 }
+
+ Provider* FilmwebProviderFactory::GetProvider(ResultsModel* model, QObject* parent)
+ {
+     return new FilmwebProvider(model, parent);
+ }
+
+ Q_EXPORT_PLUGIN2(FilmwebProvider, FilmwebProviderFactory);

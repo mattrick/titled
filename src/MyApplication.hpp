@@ -9,8 +9,8 @@ class MainWindow;
 class SettingsWindow;
 class CollectionModel;
 class ResultsModel;
-class FilmwebSearch;
 class FilterGroup;
+class Provider;
 
 class MyApplication : public QApplication
 {
@@ -24,7 +24,7 @@ class MyApplication : public QApplication
 		CollectionModel *collectionModel;
 
 		ResultsModel* resultsModel;
-		FilmwebSearch* filmwebSearch;
+		Provider* filmwebProvider;
 
 		FilterGroup* filterGroup;
 
@@ -35,7 +35,7 @@ class MyApplication : public QApplication
 
 		private slots:
 		void collectionSelectionChanged(const QModelIndex & current);
-		void queryFinished(bool ok);
+		void queryFinished(int resultsCount);
 		void resultsSelectionChanged(const QModelIndex & current);
 		void rename();
 		void onQueryChange(QStringList & words);
@@ -44,5 +44,5 @@ class MyApplication : public QApplication
 		void openSettings();
 		void onSettingsChanged();
 		void onCountChanged(int count);
-		void onNoResults();
+		void onTimeout();
 };

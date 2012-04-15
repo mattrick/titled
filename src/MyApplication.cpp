@@ -10,13 +10,15 @@
 #include <QDir>
 #include <QDirIterator>
 
+#include <QtPlugin>
+#include <QPluginLoader>
+
 #include "MyApplication.hpp"
 #include "Defaults.hpp"
 #include "MainWindow.hpp"
 #include "CollectionModel.hpp"
 #include "ResultsModel.hpp"
 #include "ResultsItem.hpp"
-#include "FilmwebSearch.hpp"
 #include "FilterGroup.hpp"
 #include "CollectionItem.hpp"
 #include "InfoDelegate.hpp"
@@ -24,6 +26,7 @@
 #include "ResultsListViewDelegate.hpp"
 #include "SettingsWindow.hpp"
 #include "CollectionListViewDelegate.hpp"
+#include "Provider.hpp"
 
 MyApplication::MyApplication(int & argc, char * * argv)
 	: QApplication(argc, argv)
@@ -53,14 +56,9 @@ void MyApplication::init()
 
 	mainWin->resultsListView->setModel(resultsModel);
 
-	filmwebSearch = new FilmwebSearch(resultsModel);
-
 	filterGroup = new FilterGroup(mainWin->centralWidget);
 	filterGroup->setGeometry(QRect(0, 620, 1024, 100));
 
-
-	connect(filmwebSearch, SIGNAL(queryFinished(bool)), this, SLOT(queryFinished(bool)));
-	connect(filmwebSearch, SIGNAL(noResults()), this, SLOT(onNoResults()));
 	connect(filterGroup, SIGNAL(queryChanged(QStringList&)), this, SLOT(onQueryChange(QStringList&)));
 
 	connect(collectionModel, SIGNAL(countChanged(int)), this, SLOT(onCountChanged(int)));
@@ -77,6 +75,36 @@ void MyApplication::init()
 
 	mainWin->setWindowTitle(QApplication::applicationName()+" v"+QApplication::applicationVersion());
 	mainWin->show();
+
+	// plugins
+
+	QDir pluginsDir(qApp->applicationDirPath());
+	 #if defined(Q_OS_WIN)
+	     if (pluginsDir.dirName().toLower() == "debug" || pluginsDir.dirName().toLower() == "release")
+	         pluginsDir.cdUp();
+	 #elif defined(Q_OS_MAC)
+	     if (pluginsDir.dirName() == "MacOS") {
+	         pluginsDir.cdUp();
+	         pluginsDir.cdUp();
+	         pluginsDir.cdUp();
+	     }
+	 #endif
+	     pluginsDir.cd("plugins");
+	     foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
+	         QPluginLoader pluginLoader(pluginsDir.absoluteFilePath(fileName));
+	         QObject *plugin = pluginLoader.instance();
+	         if (plugin) {
+	             ProviderFactory* factory = qobject_cast<ProviderFactory *>(plugin);
+	             if (factory)
+	                 filmwebProvider = factory->GetProvider(resultsModel, this);
+	             else
+	            	 throw "plugin loading fail";
+	         }
+	     }
+	//
+
+	connect(filmwebProvider, SIGNAL(queryFinished(int)), this, SLOT(queryFinished(int)));
+	connect(filmwebProvider, SIGNAL(queryTimeout()), this, SLOT(onTimeout()));
 }
 
 
@@ -98,21 +126,23 @@ void MyApplication::collectionSelectionChanged(const QModelIndex & current)
 }
 
 
-void MyApplication::queryFinished(bool ok)
+void MyApplication::queryFinished(int resultsCount)
 {
-	mainWin->resultsListView->setCurrentIndex(QModelIndex());
-
-	mainWin->collectionListView->setEnabled(true);
-	filterGroup->setEnabled(true);
-
-	if (!ok)
+	if (resultsCount)
+	{
+		mainWin->resultsListView->setCurrentIndex(QModelIndex());
+	}
+	else
 	{
 		resultsModel->clear();
 
 		mainWin->resultsListView->setItemDelegate(new InfoDelegate(mainWin->resultsListView));
 
-		resultsModel->appendRow(new InfoItem(tr("Error fetching search results"), tr("query timeout")));
+		resultsModel->appendRow(new InfoItem(tr("No matching titles"), "change your query"));
 	}
+
+	mainWin->collectionListView->setEnabled(true);
+	filterGroup->setEnabled(true);
 }
 
 /*
@@ -140,7 +170,7 @@ void MyApplication::resultsSelectionChanged(const QModelIndex & current)
 
 void MyApplication::onQueryChange(QStringList & words)
 {
-	filmwebSearch->queryChanged(words);
+	filmwebProvider->query(words);
 	resultsModel->clear();
 
 	mainWin->resultsListView->setItemDelegate(new ResultsListViewDelegate(mainWin->resultsListView));
@@ -198,16 +228,17 @@ void MyApplication::onCountChanged(int count)
 	}
 	else
 	{
-		mainWin->collectionListView->setItemDelegate(new InfoDelegate(mainWin->collectionListView));
 		collectionModel->appendRow(new InfoItem("Your collection is empty!", "visit settings"));
+
+		mainWin->collectionListView->setItemDelegate(new InfoDelegate(mainWin->collectionListView));
 	}
 }
 
-void MyApplication::onNoResults()
+void MyApplication::onTimeout()
 {
 	resultsModel->clear();
 
 	mainWin->resultsListView->setItemDelegate(new InfoDelegate(mainWin->resultsListView));
 
-	resultsModel->appendRow(new InfoItem(tr("No matching titles"), "change your query"));
+	resultsModel->appendRow(new InfoItem(tr("Error fetching search results"), tr("query timeout")));
 }

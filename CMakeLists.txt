@@ -34,6 +34,8 @@ endif (USE_QT5)
 #
 
 add_subdirectory (sqlite3x)
+add_subdirectory (plugins)
+
 
 file (GLOB titled_SOURCES "${titled_SOURCE_DIR}/src/*.cpp")
 file (GLOB titled_HEADERS "${titled_SOURCE_DIR}/src/*.hpp" "${titled_SOURCE_DIR}/src/*.h")
